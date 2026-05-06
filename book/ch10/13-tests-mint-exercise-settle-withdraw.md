@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看市场问题
 
-- 用现有测试覆盖理解 mint、redeem、settle、withdraw 的可验证路径。
-- 区分已存在单元测试与迁移计划中尚未完成的端到端 Predict 测试。
-- 把测试断言转化为应用 dry run 和错误解析检查项。
+读“结合测试分析 mint、exercise、settle、withdraw”时先抓参数边界。Predict 的关键不是某个函数名，而是 oracle、expiry、strike、vault 和 payout 之间的关系。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/tests/*`：fee reserve、pricing config、rate limiter、oracle cap 等当前测试。
 - `packages/predict/sources/predict.move`、`vault/vault.move`、`predict_manager.move`：端到端交易路径对应实现。
 - `packages/predict/simulations/src/runtime.ts`、`sim.ts`：localnet 仿真中的 PTB 执行和 gas 汇总。
 
-## 正文
+## 读市场参数
 
 当前测试目录覆盖的是底层模块而不是完整端到端交易。`tests/accounting/fee_reserve_tests.move` 验证 fee split、默认比例、dust 留给 LP 和 zero fee；`tests/config/pricing_config_tests.move` 验证 fair price fee、min fee 和 utilization fee；`tests/helper/rate_limiter_tests.move` 验证提款限速、refill、deposit replenish 和配置错误；`tests/helper/oracle_cap_tests.move` 验证 oracle cap 注册、撤销和自撤销。
 
@@ -24,13 +22,13 @@
 
 应用可以把测试断言转成 dry run 预检查：余额足够、manager owner 正确、oracle fresh、range key 合法、exposure 未超、limiter 可用、settlement price 已冻结。失败后把 Move abort 映射到具体用户动作。
 
-## 开发要点
+## Predict 边界判断
 
 - 测试描述不夸大为主网保障，只说明本书采用的 GitHub 源码快照覆盖面。
 - 每个交易路径至少列出成功断言和一个失败断言。
 - 仿真 gas 只作为 localnet 参考，不写成生产性能承诺。
 
-## 检查问题
+## 动手检查
 
 - 现有测试覆盖哪些模块，缺少哪些端到端场景？
 - mint 失败和 withdraw 失败分别最应该 dry run 哪些条件？

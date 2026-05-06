@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 为所有写交易加入 PTB build、dry run、dev inspect 和 gas 策略。
-- 从 `scripts/utils/utils.ts` 学习管理员 multisig 交易准备流程。
-- 把 Predict/Margin/Spot 的 Move abort 解析成模块级错误。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `scripts/utils/utils.ts`：`dryRunTransactionBlock`、gas payment、multisig bytes。
 - `packages/deepbook/sources/pool.move`、`packages/deepbook_margin/sources/*`、`packages/predict/sources/*`：错误定位的 Move target。
 - `book/ch12/code/s06-dry-run-helper/`：错误解析工具骨架。
 
-## 正文
+## SDK 读法
 
 PTB 是 SDK 服务层的基本返回值。后端构造后应：
 
@@ -30,13 +28,13 @@ PTB 是 SDK 服务层的基本返回值。后端构造后应：
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 每个写交易执行 build、dry run、status 检查、错误解析，再交给签名流程。
 - 管理员 multisig bytes 固定 gas price、expiration 和 gas payment。
 - 错误码按 package/module/function 归类，覆盖 Spot、Margin、Predict。
 
-## 检查问题
+## 动手检查
 
 - dry run 和 dev inspect 在 SDK 服务里分别解决什么问题？
 - Gas payment 固定对管理员 multisig 有什么价值？

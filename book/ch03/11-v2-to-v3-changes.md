@@ -2,15 +2,13 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先抓住结构
 
-- 把 V3 的账户抽象、OrderInfo、Versioned 和 Vault 设计作为迁移重点。
-- 能沿“DeepBookV2 到 V3 的关键变化”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+读“DeepBookV2 到 V3 的关键变化”时先画边界。一个真实协议最容易读乱的地方，不是函数太多，而是不知道 Pool、Book、State、Vault 和 BalanceManager 各自负责哪一段。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
@@ -18,9 +16,9 @@
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 读架构
 
 从源码结构看，V3 的重点是把交易入口统一到 `Pool`，把用户资金抽象到 `BalanceManager`，并通过 `State` 把账户、历史、治理和费用组织到池内。相比只关注订单簿本身的阅读方式，V3 更强调完整交易账户：
 
@@ -37,13 +35,13 @@
 
 迁移应用时要先重画交易输入对象和事件消费逻辑。旧代码如果假设订单簿直接保管用户余额，或只监听旧事件字段，就会在 V3 中出现余额解释和订单状态回放错误。
 
-## 开发要点
+## 工程判断
 
 - 迁移前列出旧代码依赖的余额、订单和事件假设。
 - 把 V3 的 BalanceManager 充值/授权流程纳入用户 onboarding。
 - 版本控制和 Registry 检查应成为 SDK 初始化的一部分。
 
-## 检查问题
+## 读完以后问自己
 
 - V3 为什么引入 BalanceManager 抽象？
 - OrderInfo 对事件和余额计算有什么帮助？

@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 实现借 base 后通过 DeepBook Pool 卖出 base 的杠杆做空流程。
-- 能展示 base debt 的风险方向、reduce-only 降风险入口和成交后状态。
-- 能避免用户把 quote 余额增长误判为无风险盈利。
+这里先从用户动作往回看。“通过 DeepBook Pool 执行杠杆卖出”在应用里通常是一组 PTB 和状态刷新，不是一条孤立 move call；每一步都要同时考虑余额、债务和风险率。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -17,9 +15,9 @@
 - [packages/deepbook_margin/sources/margin_pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_pool.move)
 - `book/ch09/code/s03-borrow-and-trade/README.md`
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 杠杆卖出常见路径：
 
@@ -38,19 +36,19 @@
 
 这些入口只允许减少净债务方向的交易，不能扩大仓位。
 
-补充说明：
+## 工程旁白
 
 杠杆卖出后，用户通常持有 quote 资产但欠 base。base 价格上涨会让还款成本变高，风险率下降；仅显示 quote 余额会掩盖真实风险。
 
 当 Pool 禁用常规 Margin 交易时，reduce-only 卖出/买回入口是用户自救路径。应用应根据当前 debt asset 和订单方向判断是否可 reduce-only，而不是简单隐藏交易模块。
 
-## 开发要点
+## Margin 应用判断
 
 - 做空确认页把 debt asset 用醒目字段展示，并显示 base 上涨时的清算距离。
 - reduce-only 入口单独构造，不复用普通下单参数后端静默切换。
 - 平空时通常需要买回 base 后 `repay_base`，流程要和卖出开仓分开。
 
-## 检查问题
+## 动手检查
 
 - 卖出后用户欠的是哪种资产，价格上涨还是下跌更危险？
 - 当前订单是否真的减少 base debt 风险，而不是扩大空头？

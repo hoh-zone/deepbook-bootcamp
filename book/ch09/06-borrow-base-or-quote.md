@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 实现 `borrow_base` 与 `borrow_quote`，并把借款方向映射到开多/开空体验。
-- 能计算用户可借额度：池流动性、max utilization、min borrow、风险率和订单簿深度的交集。
-- 能说明 Margin borrow 是持续计息债务，不是 DeepBookV3 闪电贷。
+这里先从用户动作往回看。“借入 base 或 quote”在应用里通常是一组 PTB 和状态刷新，不是一条孤立 move call；每一步都要同时考虑余额、债务和风险率。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -17,9 +15,9 @@
 - [packages/deepbook_margin/sources/margin_pool/margin_state.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_pool/margin_state.move)
 - `book/ch09/code/s03-borrow-and-trade/README.md`
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 借款入口是 `borrow_base` 和 `borrow_quote`。应用在构造交易前要确认：
 
@@ -39,19 +37,19 @@
 - 用户风险率约束下的最大借款。
 - 交易规模和订单簿深度。
 
-补充说明：
+## 工程旁白
 
 借入 quote 通常用于买入 base，借入 base 通常用于卖出 base。借款会增加 borrow shares，真实 debt amount 会随 `margin_state` 利息增长；应用应在借款确认页展示当前 APR 和预估日利息。
 
 可借额度不是一个单一链上字段。后端可以先本地估算，再用 dev inspect 验证最终 PTB；如果用户同时借款并下单，还要把成交后资产结构和滑点纳入风险率估算。
 
-## 开发要点
+## Margin 应用判断
 
 - 借款按钮旁显示 debt asset、borrow APR 和清算阈值距离。
 - 小额借款要检查 `min_borrow`，避免 shares 换算为 0 或低于池配置。
 - 借款成功后立即刷新 manager debt shares 和 pool utilization。
 
-## 检查问题
+## 动手检查
 
 - 用户借的是 base 还是 quote，对价格风险方向有什么影响？
 - 可借额度是否同时受池端 max utilization 和用户端 risk ratio 限制？

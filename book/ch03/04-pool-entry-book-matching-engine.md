@@ -2,15 +2,13 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先抓住结构
 
-- 沿 `place_limit_order` 阅读入口校验、撮合和挂单插入。
-- 能沿“Pool 是入口，Book 是撮合核心”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先把“Pool 是入口，Book 是撮合核心”放进 DeepBook 的对象图里。这里不是罗列模块，而是建立阅读顺序：入口在哪里，状态放在哪里，资金最终在哪里结算。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)
@@ -18,9 +16,9 @@
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
 - [packages/deepbook/sources/book/fill.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/fill.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 读架构
 
 Pool 对外暴露 `place_limit_order`、`place_market_order`、`swap_exact_*`、`modify_order`、`cancel_order`、`withdraw_settled_amounts` 等接口。Book 不直接暴露给外部调用者；它是 `PoolInner` 的内部字段。
 
@@ -50,13 +48,13 @@ pool::place_limit_order
 
 阅读调用链时，从 `pool.move` 的 public entry/public 函数进入，再跳到 `book.move` 看撮合循环，最后回到 `order_info.move` 和 `fill.move` 看成交如何记录。这个来回跳转能避免误以为某个单文件包含完整交易语义。
 
-## 开发要点
+## 工程判断
 
 - 入口函数说明外部 API，Book 函数说明撮合规则，两者不要混写。
 - 调试撮合异常时记录 order id、side、price、quantity 和 order type。
 - 费用和余额问题要继续追到 State/Vault，而不是停在 Book。
 
-## 检查问题
+## 读完以后问自己
 
 - Pool 在下单流程中承担哪些 Book 以外的职责？
 - Book 生成 fill 后，为什么还需要 OrderInfo？

@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 初始化 `DeepBookClient` 或插件式 `client.deepbook`。
-- 明确 signer、SuiClient、BalanceManager 和 pool key 的边界。
-- 为后续 Spot 服务封装建立统一客户端依赖。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `scripts/transactions/deepbookMarketMaker.ts`：`DeepBookClient` 类实例路径。
 - `scripts/transactions/createPool.ts`：`SuiGrpcClient().$extend(deepbook(...))` 插件路径。
 - `packages/deepbook/sources/pool.move`、`balance_manager.move`：客户端最终绑定的 Move 入口。
 
-## 正文
+## SDK 读法
 
 `scripts/transactions/deepbookMarketMaker.ts` 的核心初始化是：
 
@@ -36,13 +34,13 @@ const client = new DeepBookClient({
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 继承式 client 适合做市脚本，插件式 client 适合按模块调用。
 - 初始化时把 signer、client、balanceManagers、pools 依赖注入服务。
 - Spot 初始化不要顺手假设 Predict 也已有同级 SDK。
 
-## 检查问题
+## 动手检查
 
 - `DeepBookClient` 和 `$extend(deepbook(...))` 适用场景有什么差异？
 - BalanceManager 配置缺失会影响哪些下单方法？

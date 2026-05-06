@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先抓住结构
 
-- 理解 base/quote 类型参数和 tick/lot/min size 约束。
-- 能沿“Pool 的泛型资产设计”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+读“Pool 的泛型资产设计”时先画边界。一个真实协议最容易读乱的地方，不是函数太多，而是不知道 Pool、Book、State、Vault 和 BalanceManager 各自负责哪一段。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 - [packages/deepbook/sources/state/trade_params.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/trade_params.move)
 - [packages/deepbook/sources/state/balances.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/balances.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 源码定义
+## 关键定义
 
 先看 `Pool` 的定义：
 
@@ -47,7 +45,7 @@ public fun create_permissionless_pool<BaseAsset, QuoteAsset>(
 
 这段签名告诉开发者两件事：第一，创建池必须给出 base/quote 类型参数；第二，tick、lot、min size 是链上规则，不是前端展示规则。SDK 如果只让用户输入 `"SUI/USDC"`，最后仍然必须把它翻译成 `BaseAsset`、`QuoteAsset` 两个完整 Move type。
 
-## 正文
+## 读架构
 
 `Pool<phantom BaseAsset, phantom QuoteAsset>` 把交易对编码到类型系统里。`BaseAsset` 表示成交数量的单位，`QuoteAsset` 表示计价资产。`place_limit_order` 和 `place_market_order` 的 `quantity` 都是 base 数量；买单用 quote 支付，卖单用 base 支付。
 
@@ -67,13 +65,13 @@ Pool 的泛型资产设计把市场身份放进类型系统：`Pool<BaseAsset, Q
 
 阅读创建池逻辑时，把类型约束和数值约束分开列。类型约束回答“这是哪个市场”，数值约束回答“这个市场允许怎样的价格和数量”。
 
-## 开发要点
+## 工程判断
 
 - 前端和 SDK 必须固定 base/quote 顺序，展示反向价格时不要反向调用错误池。
 - 创建池参数要验证 tick size、lot size、min size 的幂和整除关系。
 - 对象查询时同时核对 Pool 类型和注册表记录。
 
-## 检查问题
+## 读完以后问自己
 
 - 为什么 BaseAsset 与 QuoteAsset 不能相同？
 - tick size 和 lot size 分别约束什么？

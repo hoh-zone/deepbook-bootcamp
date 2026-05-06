@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先跑通场景
 
-- 实现 LP supply/withdraw 的应用流程。
-- 展示 PLP shares、vault value、MTM、max payout 和 rate limiter。
-- 区分 LP 本地仿真收益曲线和真实主网收益承诺。
+这一节从 Predict 的用户动作切入：先确认用户或 operator 要提交哪些对象和参数，再回到源码看市场状态如何被约束。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/sources/predict.move`：`supply<Quote>`、`withdraw<Quote>`。
 - `packages/predict/sources/vault/plp.move`、`vault/vault.move`：PLP 和 vault value。
 - `packages/predict/sources/helper/rate_limiter.move`：提款限速。
 
-## 正文
+## 从仿真到交易
 
 LP supply 调用 `predict::supply<Quote>(predict, coin, clock)`，返回 PLP coin。仿真中 `supplyTx` 使用测试 DUSDC mint 后供应，并把 PLP 转回当前地址。withdraw 调用 `predict::withdraw<Quote>(predict, plp_coin, clock, ctx)`，源码会先检查所有 unsettled exposed oracle 的 MTM freshness，再按 PLP 占比计算可提 quote，并消耗 withdrawal limiter。
 
@@ -24,13 +22,13 @@ LP supply 调用 `predict::supply<Quote>(predict, coin, clock)`，返回 PLP coi
 
 版本状态上，本章示例参考 `packages/predict/simulations/*` 与本地 `packages/predict/sources/*`。`PREDICT_MIGRATION.md` 中未完成的 Indexer、Server、部署脚本和 Oracle services 只能作为后续集成点。
 
-## 开发要点
+## Predict 应用判断
 
 - supply 前展示当前 vault value、total PLP、预估 shares 和 quote asset。
 - withdraw 前检查 MTM freshness、limiter available、PLP balance 和未结算 oracle。
 - 收益曲线同时拆分 LP fee 收益与 settlement liability。
 
-## 检查问题
+## 动手检查
 
 - 首次 supply 和后续 supply 的 PLP 计算有什么差异？
 - 提款失败时如何区分 limiter、MTM stale 和 vault value 问题？

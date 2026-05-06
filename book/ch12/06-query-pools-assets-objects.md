@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 查询 pool、资产元数据、BalanceManager、Margin/Predict 对象状态。
-- 把链上对象状态、RPC 返回和前端缓存分层。
-- 在交易构造前验证对象版本和网络。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `packages/deepbook/sources/pool.move`、`balance_manager.move`：Spot 对象状态。
 - `packages/deepbook_margin/sources/margin_manager.move`、`margin_pool.move`：Margin 状态。
 - `packages/predict/sources/predict.move`、`oracle.move`、`vault/vault.move`：Predict 状态。
 
-## 正文
+## SDK 读法
 
 查询层通常分成两类：
 
@@ -27,13 +25,13 @@
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 查询对象时请求 content、owner、type、previousTransaction 和 version。
 - Spot/Margin/Predict 状态分别映射到 pool、manager/pool、oracle/vault/PLP。
 - 缓存只做加速，交易构造前重新校验关键共享对象版本。
 
-## 检查问题
+## 动手检查
 
 - 查询 pool 和查询 Predict vault 需要关注的字段有什么不同？
 - 资产 decimals 错误会影响哪些服务方法？

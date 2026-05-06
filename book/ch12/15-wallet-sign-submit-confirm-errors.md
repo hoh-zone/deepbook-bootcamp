@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 设计钱包签名、提交、确认和错误解析流程。
-- 服务端只返回 Transaction/bytes，前端调用钱包签名。
-- 解析 effects、events、objectChanges 和 balanceChanges 定位失败原因。
+读这一节时把自己当成 SDK 维护者：封装应该暴露业务意图，隐藏重复参数，同时保留 dry run 和错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `book/ch12/code/s05-wallet-flow/`：钱包流程骨架。
 - `scripts/utils/utils.ts`：提交前 dry run 和交易 bytes。
 - `packages/predict/sources/helper/constants.move`：Predict abort/常量映射参考。
 
-## 正文
+## SDK 读法
 
 前端钱包流程应只接收 `Transaction` 或 bytes：
 
@@ -36,13 +34,13 @@ const result = await wallet.signAndExecuteTransaction({
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 前端只接收 Transaction/bytes 并调用钱包签名提交。
 - 确认阶段读取 digest，再查询 effects、events、objectChanges、balanceChanges。
 - 错误解析优先展示可操作原因：余额、对象版本、权限、oracle stale、gas。
 
-## 检查问题
+## 动手检查
 
 - 为什么后端不应要求用户上传私钥？
 - 交易失败但有 objectChanges 时应如何处理展示？

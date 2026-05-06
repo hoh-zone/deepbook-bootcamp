@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 理解链上事件如何成为订单和余额历史的读模型来源。
-- 能沿“event::emit 与 Indexer”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+这一节用“event::emit 与 Indexer”训练 Move 手感：先看对象和资源能不能被复制、丢弃、转移，再回到 DeepBook 里判断为什么这些限制有实际价值。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [crates/indexer](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 链上状态告诉你“现在是什么”，事件告诉你“发生过什么”。Indexer 依赖事件重建订单、成交、余额、治理等时间序列。
 
@@ -33,13 +31,13 @@ DeepBook 真实事件更多：`balance_manager.move` 发出 `BalanceManagerEvent
 
 阅读事件时先找 `event::emit`，再看事件 struct 字段，最后看 indexer 如何消费这些字段。字段少了会影响链下可观测性，字段语义错了会让前端和报表都误读交易。
 
-## 开发要点
+## Move 判断
 
 - 每个用户可见状态变化都要能找到对应事件或解释为什么没有事件。
 - Indexer 延迟不等于链上交易失败，前端应区分 pending indexing 和 failed execution。
 - 事件字段应包含足够的对象 ID、账户 ID 和数量信息，方便回放。
 
-## 检查问题
+## 动手检查
 
 - 为什么当前对象字段不能替代订单历史？
 - `event::emit` 到 Indexer 表之间有哪些转换步骤？

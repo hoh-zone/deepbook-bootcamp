@@ -2,15 +2,13 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看问题
 
-- 把钱包签名、交易入口、撮合、结算和事件索引连成一张图。
-- 能沿“全局心智模型”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+这一节不急着进源码。先用“全局心智模型”回答一个更基础的问题：如果要构建真实交易应用，哪些概念必须先讲清楚，哪些细节可以等到后面再拆。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)
@@ -18,9 +16,9 @@
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [crates/indexer](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 建立直觉
 
 一次 DeepBookV3 spot 交易可以按下面路径理解：
 
@@ -44,13 +42,13 @@ Indexer 不应该从前端猜订单状态，而应消费事件。订单相关事
 
 阅读时建议画两条线：控制流从 `pool.move` 进入撮合和状态处理，资金流从 `BalanceManager` 与 `Vault` 的差额结算展开。事件流则独立标注，因为它服务于查询和审计，不参与交易原子性本身。
 
-## 开发要点
+## 落地判断
 
 - 画架构图时同时标注控制流、资金流和事件流。
 - 定位 bug 时先判断是链上执行失败、资金不足、事件索引延迟还是前端读模型错误。
 - 不要把 Indexer 数据当作交易成功的先决条件，交易成功由链上执行决定。
 
-## 检查问题
+## 读完以后问自己
 
 - 一次下单的控制流和资金流分别经过哪些模块？
 - 为什么事件流需要单独画出来？

@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先跑通场景
 
-- 构造创建 Predict market 的管理员/Operator 交易流程。
-- 说明 registry、oracle、predict object、配置对象在市场创建中的顺序。
-- 区分本地仿真 create market 和生产部署脚本的未完成状态。
+这一节先把场景落到可执行流程：读者需要看到对象从哪里来，PTB 如何构造，交易前检查什么，失败后如何回到源码定位。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/sources/registry.move`：创建 Predict、Oracle、PredictManager 和配置入口。
 - `packages/predict/sources/oracle_config.move`：asset feed、basis bounds 和 strike grid。
 - `packages/predict/simulations/src/sim.ts`：localnet setup 中创建或加载对象的流程。
 
-## 正文
+## 从仿真到交易
 
 源码里 market 不是一个独立 `Market` 对象，而是 `OracleSVI + OracleGrid + RangeKey` 的组合。管理员或 oracle operator 的创建路径在 `registry.move`：
 
@@ -32,13 +30,13 @@
 
 版本状态上，本章示例参考 `packages/predict/simulations/*` 与本地 `packages/predict/sources/*`。`PREDICT_MIGRATION.md` 中未完成的 Indexer、Server、部署脚本和 Oracle services 只能作为后续集成点。
 
-## 开发要点
+## Predict 应用判断
 
 - create market PTB 按 registry、oracle config、oracle 创建、predict 激活的顺序组织。
 - 管理员 cap、operator 权限、feed id、basis bounds 和 strike grid 都从配置读取。
 - 本节只描述 localnet/setup 或当前发布入口，不写成稳定部署脚本。
 
-## 检查问题
+## 动手检查
 
 - 创建 market 前必须准备哪些 cap 和配置对象？
 - feed id 或 basis bounds 缺失时 dry run 会暴露哪类问题？

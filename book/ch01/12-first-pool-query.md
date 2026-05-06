@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看问题
 
-- 用只读查询核对 Pool 对象和网络一致性。
-- 能沿“第一个读者任务：查询池子对象”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先把“第一个读者任务：查询池子对象”放到读者路径里看：你不是在背一个协议名，而是在建立一套判断 DeepBook 能做什么、不能做什么的坐标。读这一节时，重点看产品边界如何落到对象、交易和数据系统上。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - `book/ch01/code/s03-first-query/README.md`
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 - [packages/deepbook/sources/order_query.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/order_query.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 建立直觉
 
 选择一个真实 DeepBook 池子对象 ID，设置为 `POOL_ID`，然后使用 Sui CLI 或 TypeScript SDK 查询对象。最小目标不是下单，而是确认对象存在、网络正确、字段能被读取。
 
@@ -37,13 +35,13 @@ TypeScript 方向使用 `@mysten/sui/client` 的 `getObject`，传入 `showType`
 
 读查询输出时不要只看“有返回”。要把返回类型与 `pool.move` 中的 `Pool` 定义对照，把对象 ID 与 Registry 或官方配置对照，把网络与 RPC URL 对照。三者一致，后续才适合进入下单练习。
 
-## 开发要点
+## 落地判断
 
 - 查询脚本输出必须包含 RPC、Pool ID 和对象类型。
 - 对象存在但类型不匹配时，优先检查是否拿错池或网络。
 - 只读查询不能证明余额和权限足够，只能证明对象入口可达。
 
-## 检查问题
+## 读完以后问自己
 
 - 查询 Pool 对象可以验证哪三类配置？
 - 对象类型里的 base/quote 泛型为什么重要？

@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 区分 Margin admin、maintainer、supplier 和用户接口。
-- 封装 Margin 用户 deposit、borrow、repay、条件单与风险查询。
-- 在交易前检查 oracle freshness、风险率、版本和 cap。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `scripts/transactions/marginPrep.ts`、`supplyToMarginPool.ts`、`enableMarginVersion.ts`：管理员/供应方脚本。
 - `packages/deepbook_margin/sources/margin_manager.move`：用户入口。
 - `packages/deepbook_margin/sources/margin_pool.move`：资金池 supply/withdraw。
 
-## 正文
+## SDK 读法
 
 Margin 管理员路径来自 `scripts/transactions/marginPrep.ts`、`enableMarginVersion.ts`、`supplyToMarginPool.ts`：
 
@@ -29,13 +27,13 @@ Margin 管理员路径来自 `scripts/transactions/marginPrep.ts`、`enableMargi
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 管理员方法强制检查 admin/maintainer/supplier cap 和版本。
 - 用户 borrow/repay 前检查 oracle freshness、风险率、可借额度和 margin pool 状态。
 - Margin 服务和 Predict 服务共享配置风格，但对象和风险模型分开。
 
-## 检查问题
+## 动手检查
 
 - Margin admin、maintainer、supplier 分别控制哪些操作？
 - 用户 borrow 前最关键的风险检查是什么？

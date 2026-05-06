@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 理解对象身份、可记录 ID、交易上下文和链上时间的职责。
-- 能沿“UID、ID、TxContext、Clock”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先不要把“UID、ID、TxContext、Clock”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
 - [packages/deepbook/sources/state/history.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/history.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 `UID` 是对象身份字段，只能在对象内部持有。`hello_move.move` 的 `UserProfile`、`AdminCap`、`MyResource` 都包含 `id: UID`。
 
@@ -35,13 +33,13 @@
 
 阅读交易入口时，把 `ctx: &mut TxContext` 与 `clock: &Clock` 分开理解：前者服务对象创建和交易上下文，后者服务时间判断。把二者混用会导致你误判函数是否依赖当前时间。
 
-## 开发要点
+## Move 判断
 
 - 创建对象必须追踪 `object::new(ctx)` 的调用位置。
 - 事件里通常记录 `ID` 或地址，不应暴露或移动对象的 `UID`。
 - 涉及过期时间、epoch 或历史统计时查找 `Clock` 参数。
 
-## 检查问题
+## 动手检查
 
 - 为什么 `UID` 不能当作普通字段随意复制？
 - `TxContext` 和 `Clock` 在下单入口中分别解决什么问题？

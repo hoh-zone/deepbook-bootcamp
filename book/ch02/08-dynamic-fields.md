@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 理解 DeepBook 如何用动态字段扩展账户、授权和集合状态。
-- 能沿“动态字段”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先不要把“动态字段”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 - [packages/deepbook/sources/helper/big_vector.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/helper/big_vector.move)
 - [packages/deepbook/sources/state/account.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/account.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 动态字段适合在对象下挂载规模不固定的数据。订单簿、账户映射、注册表和余额容器都可能需要这种模式。
 
@@ -33,13 +31,13 @@
 
 阅读动态字段时，重点找 key 类型、父对象、增删改入口和是否存在反向索引。只知道用了 dynamic field 还不够，调试时必须能从父对象 ID 和 key 还原查询路径。
 
-## 开发要点
+## Move 判断
 
 - 标注每个动态字段的父对象和 key 类型。
 - 写查询工具时不要只拿对象字段，还要考虑动态字段分页。
 - 删除授权或余额字段时检查是否同步清理相关索引或事件。
 
-## 检查问题
+## 动手检查
 
 - 动态字段解决 DeepBook 哪类扩展问题？
 - 查询动态字段需要知道哪两个核心信息？

@@ -2,10 +2,19 @@
 
 ## 本章目标
 
-- 理解为什么 DeepBook 应用必须建设链下数据层。
-- 掌握 `crates/indexer` 从 checkpoint 读取事件、解析事件、写入 PostgreSQL 的路径。
-- 掌握 `crates/server` 如何把数据库和链上只读调用封装为 REST API。
-- 能为交易终端、行情页、Margin 面板和风控系统设计可维护的数据服务。
+官方 DeepBookV3 Indexer 文档把 Indexer 定位为实时访问订单簿和交易数据的链下服务。它既提供 public service，也允许应用自建服务；选择哪一种，取决于延迟、可用性、定制需求和运维能力。
+
+本章目标是把这个官方定位落成工程系统：理解为什么交易应用不能只依赖链上查询；掌握 `crates/indexer` 从 checkpoint 读取事件、解析事件、写入 PostgreSQL 的路径；掌握 `crates/server` 如何把数据库和链上只读调用封装为 REST API；最终能为交易终端、行情页、Margin 面板和风控系统设计可维护的数据服务。
+
+## 官方数据基线
+
+| 官方能力 | 本章展开 |
+| --- | --- |
+| Public DeepBookV3 indexer | 解释何时可以直接用 public endpoint，何时必须自建。 |
+| `/get_pools`、historical volume、OHLCV、user volume | 映射到池元数据、K 线、个人交易历史和资产精度处理。 |
+| Asset conversions | 所有返回 volume 都要用资产 decimals/scalar 解释，不能直接显示整数。 |
+| Margin events | 区分 DeepBook flashloans、Margin loan borrowed/repaid、liquidation 等不同生命周期。 |
+| `/status` 与服务健康 | 机器人、做市和风控系统必须根据 checkpoint lag 降级或暂停。 |
 
 ## 本章学习阶梯
 
@@ -44,6 +53,7 @@ define_handler! {
 
 ## 源码地图
 
+- [Sui Docs: DeepBookV3 Indexer](https://docs.sui.io/onchain-finance/deepbookv3/deepbookv3-indexer)：public indexer、asset conversion、API endpoints、自建服务取舍。
 - [crates/indexer/src/main.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/src/main.rs)：Indexer 启动参数、环境选择、pipeline 注册。
 - [crates/indexer/src/handlers/mod.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/src/handlers/mod.rs)：`EventMeta`、`define_handler!` 宏、DeepBook 交易过滤。
 - [crates/indexer/src/handlers/order_fill_handler.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/src/handlers/order_fill_handler.rs)：成交事件到 `order_fills` 表的映射。
@@ -93,6 +103,7 @@ define_handler! {
 
 ## 常见错误
 
+- 把 public indexer 当作无限 SLA。生产机器人和风控系统需要明确延迟阈值和降级策略。
 - 把链上对象状态和 Indexer 落库状态视为完全同步。
 - 把 DeepBookV3 闪电贷表当成 Margin 借贷表。
 - 忘记给高频查询加时间窗口和分页。
@@ -113,4 +124,3 @@ define_handler! {
 - 为 `order_fills` 设计一个 1 分钟 K 线物化视图。
 - 为 `flashloans` 写一个按池子统计每日借出数量的 SQL。
 - 设计一个当 checkpoint lag 超过阈值时自动暂停做市机器人的机制。
-

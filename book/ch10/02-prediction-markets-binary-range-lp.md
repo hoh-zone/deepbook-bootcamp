@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看市场问题
 
-- 解释 Predict 如何用 `RangeKey` 表达二元 UP/DOWN 和有限区间市场。
-- 说明用户头寸、LP vault、PLP 和结算 payout 之间的资金关系。
-- 识别预测市场 UI 里必须展示的 oracle、expiry、strike 和 vault 风险字段。
+这里先从市场定义往下看。“预测市场、二元期权、区间市场和 LP vault”服务的是 Predict 市场如何被定义、定价、mint、settle 或索引；不要把它读成普通现货订单簿的变体。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/sources/market_key/range_key.move`：`(oracle, expiry, lower, higher]` 的 market key 定义。
 - `packages/predict/sources/predict.move`：`mint`、`redeem`、`supply`、`withdraw` 的外部入口。
 - `packages/predict/sources/vault/vault.move` 与 `vault/plp.move`：LP 资金池、敞口和 PLP 份额。
 
-## 正文
+## 读市场参数
 
 Predict 的交易单位是一个在到期时支付 0 或 `quantity` 的区间头寸。`range_key.move` 把头寸定义为 `(oracle_id, expiry, lower_strike, higher_strike)`，结算规则是价格落在 `(lower, higher]` 内则支付 `quantity`，否则支付 0。二元 UP 市场可以表示为 `(strike, +inf]`，DOWN 市场可以表示为 `(-inf, strike]`，更宽的区间市场则直接设置两个有限 strike。
 
@@ -24,13 +22,13 @@ PTB 构造上，二元市场和区间市场的差异只体现在传给 `mint<Quo
 
 LP 不是被动收取固定利息，而是在 vault 中承担所有未结算区间的对手方风险。服务层报价时应同时返回 fair value、fee、all-in ask、vault MTM、max payout 和是否满足 exposure limit。
 
-## 开发要点
+## Predict 边界判断
 
 - 市场卡片必须展示 oracle、expiry、strike range 和 quote asset，而不是只显示 UP/DOWN。
 - mint 前检查 `PredictManager` 余额、oracle 新鲜度、ask bounds 和 vault exposure。
 - LP 页面同时展示 PLP NAV、MTM、max payout、withdraw limiter 和 settlement 状态。
 
-## 检查问题
+## 动手检查
 
 - 为什么同一个 strike 在不同 oracle 或 expiry 下不是同一个市场？
 - 用户 live redeem 和 settled redeem 分别由 vault 支付什么金额？

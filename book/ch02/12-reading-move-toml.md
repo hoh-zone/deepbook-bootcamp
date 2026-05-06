@@ -2,23 +2,21 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 从包配置理解 package、依赖、地址映射和 edition。
-- 能沿“阅读 Move.toml”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先不要把“阅读 Move.toml”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/Move.toml)
 - [packages/deepbook_margin/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/Move.toml)
 - [packages/predict/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/Move.toml)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 DeepBookV3 的包配置在 [packages/deepbook/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/Move.toml)：
 
@@ -45,13 +43,13 @@ deepbook = "0x0"
 
 比较 DeepBook、Margin、Predict 的 `Move.toml`，可以快速看出它们是独立包还是共享依赖。不要只凭目录名判断协议关系，包配置里的依赖才是更可靠的入口。
 
-## 开发要点
+## Move 判断
 
 - 读源码前先确认当前包名和地址别名。
 - 升级或切换分支后重新检查 dependency rev/path。
 - 引用模块时用 Move.toml 中的地址映射解释来源。
 
-## 检查问题
+## 动手检查
 
 - `Move.toml` 中哪些字段会影响源码阅读？
 - 为什么包依赖比产品名称更能说明边界？

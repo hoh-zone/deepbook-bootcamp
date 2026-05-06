@@ -2,9 +2,23 @@
 
 ## 本章目标
 
-读完本章，你应该能从源码层面解释 DeepBook Predict 的核心对象、交易入口、资金路径和风险边界，并能判断哪些能力已经存在于本书采用的 GitHub 源码快照，哪些仍只是迁移计划。
+官方文档把 DeepBook Predict 定位为 Sui 上基于到期日的预测市场协议，并明确当前公共集成目标是 Testnet。它支持 binary positions、vertical ranges、oracle-driven prices、`PredictManager`、Vault liquidity 和 `PLP` LP shares。本章必须先把这个网络状态说清楚，再进入源码。
 
-本章使用的源码快照位于 [packages/predict](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict)。需要特别注意版本状态：[PREDICT_MIGRATION.md](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/PREDICT_MIGRATION.md) 写明 PR 1 Oracle 与 PR 2 Vault + Configs 已合入 main，PR 3 Market Key + Predict Manager、PR 4 Predict Core + Registry、PR 5 测试以及后续 Indexer/Server/脚本服务仍处于计划或阻塞状态。源码快照中已经可以看到 `predict.move`、`registry.move`、`predict_manager.move`、`market_key/range_key.move` 和仿真代码，但书中不能把迁移文档中未完成的 Indexer、Server、部署脚本、Oracle 服务写成稳定主网能力。
+读完本章，读者应该能从源码层面解释 DeepBook Predict 的核心对象、交易入口、资金路径、oracle 生命周期、vault 风险和 LP 份额，并能区分：官方 Testnet 集成面、public Predict server 数据面、本书锁定 GitHub 源码快照，以及未来 Mainnet 部署前可能变化的部分。
+
+本章使用的源码快照位于 [packages/predict](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict)。官方文档当前指出 Predict 来自 `predict-testnet-4-16` 分支，公共集成目标在 Sui Testnet；因此本书不能把 package IDs、object layouts、entry points 或 public server 行为写成永久主网事实。
+
+## 官方集成基线
+
+Predict 应用不是只读链，也不是只读 server。官方推荐的集成模型可以整理成三层：
+
+| 数据来源 | 适合场景 | 本书展开 |
+| --- | --- | --- |
+| Public Predict server | 页面渲染、市场列表、portfolio、vault summary、历史数据 | ch11、ch13 会把它当作读模型和产品数据源。 |
+| Sui checkpoint / event streaming | 需要低延迟 oracle 更新的页面或策略 | ch10-05、ch10-12 讲 oracle event 和 freshness。 |
+| Direct onchain object reads | 钱包交易前后需要确认关键状态 | ch10 源码章和 ch12 SDK 章都会保留直接对象读取路径。 |
+
+> **版本旁白**：Predict 是本书里最需要标注版本状态的章节。写法上要避免“源码里有函数，所以产品已经稳定”的推断；官方 Testnet 文档、public server、源码分支和本地锁定提交必须分别说明。
 
 ## 本章学习阶梯
 
@@ -110,7 +124,8 @@ public fun redeem<Quote>(
 
 ## 常见错误
 
-- 把 `PREDICT_MIGRATION.md` 中 Phase 2 的 Indexer/Server 写成已上线能力。
+- 把 Testnet integration surface 写成 Mainnet 稳定能力。
+- 把旧 Predict 实验 package ID 或本地脚本配置写进正文，覆盖官方当前 contract information。
 - 把 quote fee 当成 bps；源码中它是每单位绝对价格增量。
 - 只用 strike 和方向当市场 ID，忽略 oracle ID 与 expiry。
 - LP 页面只展示 vault balance，不展示 MTM、max payout 和 withdrawal limiter。

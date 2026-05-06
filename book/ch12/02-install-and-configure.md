@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 安装并配置 Sui SDK、DeepBook SDK 和本章 TypeScript 骨架。
-- 把网络、RPC、对象 ID、cap 和 coin type 放入集中配置。
-- 为 Predict 增加迁移状态字段，避免误连未验证网络。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `book/ch12/code/s01-sdk-init/`：SDK 初始化模板。
 - `scripts/config/constants.ts`：网络、cap、pool、manager 地址配置来源。
 - `packages/predict/sources/*`：Predict 需要额外标注 package/object IDs 和版本状态。
 
-## 正文
+## SDK 读法
 
 本章不安装依赖，只给出工程应声明的依赖方向：
 
@@ -47,13 +45,13 @@ GAS_OBJECT=0x...
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 依赖安装后先跑类型检查或最小初始化脚本，确认 SDK 版本兼容。
 - `.env` 或配置文件只存 RPC、network、object IDs，不存用户私钥。
 - Predict 配置缺少迁移状态时只允许示例构造，不允许真实交易。
 
-## 检查问题
+## 动手检查
 
 - 安装完成后如何验证 `SuiClient` 和 DeepBook SDK 可用？
 - 哪些配置应来自 `constants.ts` 风格的集中表？

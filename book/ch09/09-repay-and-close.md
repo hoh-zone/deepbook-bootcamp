@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 实现部分还款、全额还款和组合平仓流程。
-- 能正确处理 `Option<u64>` amount、repay shares、债务资产余额和 min repay 边界。
-- 能设计取消订单、结算、反向交易、还款、提取剩余资产的平仓顺序。
+这一节从 Margin 用户动作读起：围绕“部分还款、全部还款和平仓”，先把 manager、collateral、loan、trade 和 repay 的顺序排清楚，再看源码入口。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -16,9 +14,9 @@
 - [packages/deepbook_margin/sources/margin_pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_pool.move)
 - `book/ch09/code/s04-repay-and-close/README.md`
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 还款入口：
 
@@ -42,19 +40,19 @@
 - `EIncorrectMarginPool`：传错了债务对应的 MarginPool。
 - 余额不足：manager 里没有足够债务资产，用户需要先成交或存入。
 
-补充说明：
+## 工程旁白
 
 还款金额和债务 shares 之间存在精度边界。全额还款通常用 none 语义让链上尽量还清；部分还款要确保金额能换算成非零 shares，并且 manager 中有足够债务资产。
 
 平仓不是单个 repay 调用。用户可能需要先取消挂单、结算成交资产，再通过 DeepBook 反向交易把资产换成 debt asset，最后还款并提取剩余余额。
 
-## 开发要点
+## Margin 应用判断
 
 - 还款 UI 默认显示 debt asset，禁止用非债务资产直接提交 repay。
 - 全额还款后重新读取 borrow shares，确认是否真正清零。
 - 平仓流程每一步都保留 dry run，尤其是反向交易和最终提款。
 
-## 检查问题
+## 动手检查
 
 - 传入 none 和 some amount 的链上行为有什么区别？
 - manager 中是否有足够 debt asset，还是需要先反向交易？

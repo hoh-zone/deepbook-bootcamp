@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 用 `constants.ts` 管理主网、测试网、cap、pool、manager 和 Predict 对象 ID。
-- 避免业务函数散写对象 ID 或 coin type。
-- 为 Predict 显式记录版本/迁移状态。
+读这一节时把自己当成 SDK 维护者：封装应该暴露业务意图，隐藏重复参数，同时保留 dry run 和错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `scripts/config/constants.ts`：主网/测试网对象 ID 表。
 - `scripts/transactions/marginPrep.ts`、`enableMarginVersion.ts`：cap 配置消费方式。
 - `packages/predict/sources/predict.move`、`registry.move`：Predict 配置应包含的对象。
 
-## 正文
+## SDK 读法
 
 配置文件建议按“网络 -> 对象角色 -> object ID”组织，而不是按业务函数组织。对象角色包括：
 
@@ -30,13 +28,13 @@
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - `constants.ts` 按 network 分组保存 cap、pool、manager、registry、predict 对象。
 - 测试网字段为空时 fail fast，不发送空对象 ID。
 - Predict 增加 `predictVersionStatus`、package ID、registry ID、predict ID、oracle IDs。
 
-## 检查问题
+## 动手检查
 
 - 哪些对象 ID 绝不能散落在业务函数里？
 - 管理员 cap 和用户 manager 配置的生命周期有什么不同？

@@ -42,16 +42,39 @@
 
 ## 小节写法
 
-- 每个编号小节必须拆成独立文件：`book/chXX/NN-title.md`
-- 每节标题格式：`# chXX-NN 小节标题`
-- 每节开头保留返回本章链接：`[返回本章](README.md)`
-- 每节至少包含：本节目标、源码关联、正文、开发要点、检查问题。
-- 每节先提出场景问题或最小实验，再绑定源码，再说明开发实践。
-- 源码引用必须给出 GitHub 源码，例如 `packages/deepbook/sources/pool.move`。
-- 不能只给源码链接；关键结构体、方法签名和事件字段必须抽成“定义卡片”放在正文内。
-- 涉及函数时写出函数名、参数意义、资金或状态变化。
-- 涉及应用开发时必须补充错误处理、交易前检查和生产注意事项。
-- 每节至少加入一个“Move 技巧”“源码旁白”或“工程提醒”，让内容服务学习者，而不是只罗列功能。
+每个编号小节仍然必须拆成独立文件：`book/chXX/NN-title.md`。标题格式保持 `# chXX-NN 小节标题`，开头保留 `[返回本章](README.md)`，便于 mdBook 阅读和章节维护。
+
+正文不要写成固定的“五段模板”。同一章内可以使用统一的阅读气质，但每一节都要根据内容选择节奏：
+
+- **概念节**：先讲一个真实误解或产品问题，再给心智模型，最后指出源码入口。
+- **源码节**：先给最小调用链，再摘关键定义，随后解释字段如何改变状态。
+- **应用节**：先从 UI、SDK、PTB 或错误提示出发，再反推链上对象和函数。
+- **数据节**：先讲读模型要回答的问题，再展开事件、表、索引和一致性。
+- **练习节**：先给任务场景，再给观察点、失败路径和扩展方向。
+
+允许使用以下标题，但不要每节都按同一组标题排列：
+
+- `## 先看问题`
+- `## 从哪段源码进入`
+- `## 关键定义`
+- `## 读源码`
+- `## Move 旁白`
+- `## 工程判断`
+- `## 容易踩坑`
+- `## 动手检查`
+- `## 继续练习`
+
+写法上要避免这几类模板痕迹：
+
+- 不要每节都用“本节目标”开场；目标可以融入第一段或短提示框。
+- 不要每节都列三条“能指出、能解释、能用于”的学习目标。
+- 不要写“补充阅读：阅读某某时，先从……”这种生成式句子；改成具体的源码旁白。
+- 不要把“开发要点”和“检查问题”写成通用三条 checklist；如果没有具体判断，就删掉。
+- 不要为了形式强行加标题。短节可以用少量小标题，长节才需要更多分隔。
+
+源码引用必须给出 GitHub 源码，例如 `packages/deepbook/sources/pool.move`。但链接不是正文，关键 `struct`、`public fun`、事件字段和 handler 映射必须抽成“关键定义”放进书里，并解释字段、入口、状态变化和误读点。
+
+涉及函数时写出函数名、参数意义、资金或状态变化。涉及应用开发时补充错误处理、交易前检查和生产注意事项。每节至少有一个具体的 Move 旁白或工程判断，让读者读完能做出更可靠的实现决策。
 
 ## 代码目录
 
@@ -64,12 +87,21 @@
 
 ## 技术事实
 
+- 官方文档基线：[DeepBookV3](https://docs.sui.io/onchain-finance/deepbookv3/deepbook)、[DeepBook Margin](https://docs.sui.io/onchain-finance/deepbook-margin/)、[DeepBook Predict](https://docs.sui.io/onchain-finance/deepbook-predict/)
 - DeepBookV3 源码目录：[packages/deepbook](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook)
 - DeepBook Margin 源码目录：[packages/deepbook_margin](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin)
 - DeepBook Predict 源码目录：[packages/predict](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict)
 - Indexer 源码目录：[crates/indexer](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer)
 - Server 源码目录：[crates/server](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/server)
 - DeepBookV3 闪电贷存在，入口在 `pool.move`，底层实现位于 `vault/vault.move`。
+- Predict 章节必须标注 Testnet / Mainnet 边界；官方文档当前把 Predict 描述为 Testnet integration surface。
+
+## 官方文档与本书的关系
+
+- 官方文档负责回答“当前能力是什么、公开对象和集成入口在哪里”。
+- 本书负责回答“为什么这样设计、源码如何走、Move 安全边界是什么、应用如何落地”。
+- 引用官方对象 ID、package ID、server URL、风险参数和网络状态时，必须标注来源和日期语境，避免把会变化的线上配置写成永久事实。
+- 不能把官方文档中的 overview 直接改写成正文。每个章节必须增加源码定义、状态路径、工程判断或练习，否则达不到出版社级别。
 
 ## 质量标准
 

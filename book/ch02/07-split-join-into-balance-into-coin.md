@@ -2,23 +2,21 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 掌握 Move 资产拆分、合并和对象/余额转换路径。
-- 能沿“split、join、into_balance、into_coin”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+这一节用“split、join、into_balance、into_coin”训练 Move 手感：先看对象和资源能不能被复制、丢弃、转移，再回到 DeepBook 里判断为什么这些限制有实际价值。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [packages/deepbook/sources/state/balances.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/balances.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 `split` 用于把一个 coin 拆成指定金额的小 coin。交易前常用于准备 gas 之外的输入资产。
 
@@ -36,13 +34,13 @@
 
 不要把 split/join 当作普通数字加减。它们操作的是资源，失败或遗漏会造成资源守恒问题，Move 类型系统会帮助约束，但业务逻辑仍要检查数量、资产类型和授权。
 
-## 开发要点
+## Move 判断
 
 - 每次 split 都要能说明切出的资产去向。
 - 每次 join 都要确认资产类型一致且不会绕过费用或锁定逻辑。
 - 从 `Balance<T>` 回到 `Coin<T>` 时确认函数是否需要 `TxContext`。
 
-## 检查问题
+## 动手检查
 
 - `into_coin(ctx)` 为什么需要 `TxContext`？
 - Vault 结算中 split 和 join 分别对应哪些资产方向？

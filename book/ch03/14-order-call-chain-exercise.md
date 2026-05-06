@@ -2,15 +2,13 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先抓住结构
 
-- 用一笔限价买单复盘控制流、撮合、状态更新、结算和事件。
-- 能沿“下单调用链练习”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先把“下单调用链练习”放进 DeepBook 的对象图里。这里不是罗列模块，而是建立阅读顺序：入口在哪里，状态放在哪里，资金最终在哪里结算。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)
@@ -19,9 +17,9 @@
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 读架构
 
 用一个限价买单推演源码路径：
 
@@ -42,13 +40,13 @@
 
 复盘时不要只写成功路径。把 IOC/FOK/Post-only、过期 maker、部分成交、余额不足、tick/lot 不合法分别放进旁注，后续做 SDK 或前端时就能把错误提示设计得更准确。
 
-## 开发要点
+## 工程判断
 
 - 练习输出必须包含控制流、资金流和事件流三列。
 - 每个阶段都记录可能 abort 的原因，尤其是参数和权限检查。
 - 部分成交场景要说明剩余数量是插入订单簿还是被订单类型取消。
 
-## 检查问题
+## 读完以后问自己
 
 - 限价买单从 Pool 到 Vault 至少经过哪些模块？
 - 部分成交后 `OrderInfo` 为什么还要继续参与 State 处理？

@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看问题
 
-- 区分 trader、maker、管理员、应用和链下服务的职责。
-- 能沿“核心用户角色”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先把“核心用户角色”放到读者路径里看：你不是在背一个协议名，而是在建立一套判断 DeepBook 能做什么、不能做什么的坐标。读这一节时，重点看产品边界如何落到对象、交易和数据系统上。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 - [packages/deepbook/sources/state/governance.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/governance.move)
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 建立直觉
 
 taker 是主动吃掉订单簿流动性的人。maker 是提供挂单流动性的人。LP 在 DeepBook 语境里通常指通过订单或策略提供流动性的一方，而不是 AMM LP token 的持有人。
 
@@ -33,13 +31,13 @@ predict trader 则属于 [packages/predict](https://github.com/MystenLabs/deepbo
 
 做权限设计时，把“谁签名”“谁拥有 BalanceManager”“谁持有 cap”“谁承担链下展示”拆成四列。这样能提前发现代客交易、应用授权和只读查询服务之间的边界。
 
-## 开发要点
+## 落地判断
 
 - 交易者身份以 `BalanceManager` owner/cap/proof 校验为准，不以前端登录态为准。
 - 管理员操作要单独标注 cap 来源和可修改的协议参数。
 - Indexer/server 只能解释历史和读模型，不能替代链上授权检查。
 
-## 检查问题
+## 读完以后问自己
 
 - maker 和 taker 在链上一定是不同地址吗？
 - 应用拿到 `TradeCap` 后能绕过 BalanceManager 校验吗？

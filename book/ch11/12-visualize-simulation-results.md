@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先跑通场景
 
-- 把 simulation `results.json` 转成 gas、延迟、成功率和 LP 风险图表。
-- 说明 `visualize.py` 的输入输出和可扩展字段。
-- 避免把仿真图表写成主网 SLA。
+这一节先把场景落到可执行流程：读者需要看到对象从哪里来，PTB 如何构造，交易前检查什么，失败后如何回到源码定位。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/simulations/src/shared.ts`：results schema。
 - `packages/predict/simulations/visualize.py`：图表生成。
 - `packages/predict/simulations/data/scenario_mar6_1000mints.csv`：输入场景。
 
-## 正文
+## 从仿真到交易
 
 `shared.ts` 定义 `results_v2`：`summary.totalTxs`、`summary.byAction.{update_prices,update_svi,mint}` 和 `mints[]`。每个 action summary 包含 count、gas avg/min/max、wallMs avg/min/max；mint row 包含 wallMs、computationCost、storageCost、storageRebate、gasTotal。
 
@@ -40,13 +38,13 @@ localnet 仿真输出适合比较 gas、延迟和 mint 执行数据，不提供 
 
 版本状态上，本章示例参考 `packages/predict/simulations/*` 与本地 `packages/predict/sources/*`。`PREDICT_MIGRATION.md` 中未完成的 Indexer、Server、部署脚本和 Oracle services 只能作为后续集成点。
 
-## 开发要点
+## Predict 应用判断
 
 - 图表至少覆盖成功率、gas 分布、wallMs、vault value、MTM、PLP NAV。
 - 读取 `results.json` 时保留失败 action 和 abort reason，不只画成功交易。
 - 报告标题和注释明确来自 simulation results，而不是主网监控。
 
-## 检查问题
+## 动手检查
 
 - `results.json` 中哪些字段适合做 gas/latency 图？
 - LP 收益曲线需要哪些 vault 和 fee 字段？

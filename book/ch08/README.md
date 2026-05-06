@@ -2,9 +2,23 @@
 
 ## 本章目标
 
-- 从源码层面解释 Margin 如何把抵押品、借贷池、DeepBook Spot 订单簿和清算流程连成一个杠杆交易系统。
-- 读懂 `MarginRegistry`、`MarginManager`、`MarginPool<Asset>`、`pool_proxy`、`margin_state`、`protocol_config`、`tpsl` 和 `liquidation_vault` 的职责边界。
-- 能够根据风险率、利率、预言机价格和清算参数，推导一次开仓、还款或清算交易的状态变化。
+官方文档把 DeepBook Margin 定位为 DeepBookV3 上的杠杆交易扩展：用户通过借入资金放大买卖能力，同时承担清算、利率和 oracle 风险。本章不从“多了哪些函数”开始，而是从风险系统开始读源码。
+
+读完本章后，读者应该能解释 Margin 如何把抵押品、借贷池、DeepBook Spot 订单簿和清算流程连成一个杠杆交易系统；能读懂 `MarginRegistry`、`MarginManager`、`MarginPool<Asset>`、`pool_proxy`、`margin_state`、`protocol_config`、`tpsl` 和 `liquidation_vault` 的职责边界；也能根据风险率、利率、预言机价格和清算参数，推导一次开仓、还款或清算交易的状态变化。
+
+## 官方风险基线
+
+Margin 章节必须始终围绕风险写，而不是围绕接口列表写。
+
+| 官方主题 | 本章落地方式 |
+| --- | --- |
+| Leveraged positions | ch09 讲用户路径，ch08 讲源码和状态边界。 |
+| Risk management and liquidation | ch08-06、ch08-13、ch08-16 讲风险率、清算和阈值。 |
+| Collateral flexibility | ch08-03、ch09-04 讲 `MarginManager` 如何包装抵押品和 BalanceManager。 |
+| Interest accrual | ch08-08、ch08-09、ch08-10 讲 shares、utilization、protocol spread 和费用分配。 |
+| Oracle risk | ch08-11 讲 stale price、confidence、EWMA 和交易前检查。 |
+
+官方主网合同信息会随升级变化。本章解释对象和状态机时以源码为主；写对象 ID、版本、风险参数和池列表时，应回到 [DeepBook Margin contract information](https://docs.sui.io/onchain-finance/deepbook-margin/contract-information) 核对最新值。
 
 ## 本章学习阶梯
 
@@ -105,6 +119,7 @@ public struct MarginPool<phantom Asset> has key, store {
 - 把 `MarginPool.supply` 理解成给自己加保证金。供应到 MarginPool 是给借贷池提供流动性；用户保证金应存入 `MarginManager.deposit`。
 - 直接调用 DeepBook Pool 下单。Margin 仓位必须通过 `pool_proxy`，否则价格保护、manager 权限和 reduce-only 逻辑不会生效。
 - 用借款金额替代 borrow shares。链上债务随利息增长，真实金额要通过 `borrow_shares_to_amount` 计算。
+- 只展示杠杆倍数，不展示风险率、利率、清算价和 oracle freshness。出版社级内容必须把用户能亏在哪里讲清楚。
 - 忽略 oracle freshness。前端展示可以用 unsafe 读接口，但执行交易必须按链上安全 oracle 检查。
 - 把清算奖励当成固定转账。`liquidate` 会根据目标风险率、资产覆盖程度和 repay coin 数量动态计算。
 

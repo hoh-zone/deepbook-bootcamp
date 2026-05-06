@@ -2,23 +2,21 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 区分钱包 coin 对象和协议内部余额。
-- 能沿 `Coin<T>` 与 `Balance<T>` 定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+先不要把“Coin&lt;T&gt; 与 Balance&lt;T&gt;”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [packages/deepbook/sources/state/balances.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/balances.move)
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 `Coin<T>` 是可作为对象输入和输出的钱币对象。钱包里看到的 SUI 或 token 通常是 `Coin<T>` 对象。
 
@@ -32,13 +30,13 @@
 
 调试“余额不见了”时，先判断资产处于钱包 coin、BalanceManager 余额、Pool Vault 余额还是 open order 锁定状态。它们都是资产路径的一部分，但查询方式和权限完全不同。
 
-## 开发要点
+## Move 判断
 
 - 存款路径关注 `into_balance`，取款路径关注 `into_coin(ctx)`。
 - 不要用钱包 coin 余额直接判断能否下 DeepBook 订单。
 - 结算问题要同时查看 BalanceManager 和 Vault 的差额处理。
 
-## 检查问题
+## 动手检查
 
 - 为什么存入 BalanceManager 后钱包 coin 数量会变化？
 - `Balance<T>` 为什么更适合协议内部记账？

@@ -2,12 +2,9 @@
 
 ## 本章目标
 
-读完本章后，你应该能够：
+第一章的任务不是把所有源码讲完，而是帮读者建立正确的入口。DeepBook 不是 AMM，也不是一个单独的前端产品；它是一组围绕链上订单簿、账户托管、事件索引和 SDK 集成组织起来的交易基础设施。
 
-- 说清 DeepBookV3 是 Sui 上的中央限价订单簿，交易路径不同于 AMM。
-- 在本地找到 DeepBookV3、DeepBook Margin、DeepBook Predict、Indexer、Server 的源码边界。
-- 解释一次下单涉及的钱包、交易、`Pool`、`BalanceManager`、事件和 Indexer。
-- 完成开发环境检查，并查询一个 DeepBook 池子对象的基础字段。
+读完本章后，读者应该能用自己的话区分 CLOB 与 AMM，能在本地找到 DeepBookV3、Margin、Predict、Indexer 和 Server 的源码边界，能画出一次下单从钱包签名到 `Pool`、`BalanceManager`、事件和 Indexer 的路径，并完成一次最小池子对象查询。
 
 ## 本章学习阶梯
 
@@ -18,7 +15,7 @@
 
 ## 源码地图
 
-本章只读取项目入口和产品边界，不进入撮合细节。
+本章只读取项目入口和产品边界，不进入撮合细节。源码地图的作用是建立导航能力：读者知道后续遇到订单、余额、事件、SDK 或 Server 时该回到哪个目录。
 
 | 主题 | GitHub 源码 | 阅读重点 |
 | --- | --- | --- |
@@ -75,4 +72,3 @@
 1. 用文字画出一次限价买单从钱包签名到 `OrderPlaced` 事件的路径。
 2. 阅读 [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)，列出 `place_limit_order` 的每个参数含义。
 3. 阅读 [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)，解释为什么 owner 和 trader 的权限不同。
-

@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 把协议对象拆成配置、账户、资金、交易、风控和机器人模块。
-- 能为每个模块指定链上来源、SDK 调用、Indexer 缓存和 UI 展示职责。
-- 能明确 Margin 借贷、DeepBook 现货撮合和闪电贷不是同一个应用状态。
+这一节从 Margin 用户动作读起：围绕“Margin 交易应用模块设计”，先把 manager、collateral、loan、trade 和 repay 的顺序排清楚，再看源码入口。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -17,9 +15,9 @@
 - [packages/deepbook_margin/sources/pool_proxy.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/pool_proxy.move)
 - [packages/margin_liquidation/sources/liquidation_vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/margin_liquidation/sources/liquidation_vault.move)
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 一个可用的 Margin 应用至少拆成六个模块：
 
@@ -32,19 +30,19 @@
 
 后端不要把“估算成功”当成“交易一定成功”。每个写交易都要执行 dry run 或 dev inspect，并把 Move abort code 映射成用户能理解的错误。
 
-补充说明：
+## 工程旁白
 
 应用架构的关键是把“配置真值”和“用户会话状态”分开。registry、PoolConfig、MarginPool 和 oracle object 是链上真值；本地 SDK 配置只是帮助构造 PTB；Indexer 缓存只用于查询加速。
 
 交易模块不要暴露 DeepBook 原始下单作为 Margin 下单的快捷方式。Margin 持续债务必须通过 manager 和 `pool_proxy` 进入现货池；DeepBookV3 闪电贷如果用于其他场景，也应作为独立功能，不和 margin borrow/repay 共享状态。
 
-## 开发要点
+## Margin 应用判断
 
 - 每个写操作都生成 PTB、dry run、错误映射和事件刷新四个步骤。
 - 账户模块按 `(owner, poolKey)` 组织 manager，避免多池仓位混淆。
 - 机器人模块需要独立密钥和权限，不能复用用户签名或 admin cap。
 
-## 检查问题
+## 动手检查
 
 - 这个功能读的是链上真值、Indexer 派生状态还是前端缓存？
 - 用户操作会产生持续债务吗，是否需要展示 interest accrual？

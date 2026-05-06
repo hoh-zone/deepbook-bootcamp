@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 实现借 quote 后通过 DeepBook Pool 买入 base 的 PTB 和交易前模拟。
-- 能展示成交均价、滑点、价格保护、借款后风险率和成交后风险率。
-- 能确保杠杆买入走 `pool_proxy` 而不是直接调用 DeepBook 原始入口。
+这一节从 Margin 用户动作读起：围绕“通过 DeepBook Pool 执行杠杆买入”，先把 manager、collateral、loan、trade 和 repay 的顺序排清楚，再看源码入口。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -17,9 +15,9 @@
 - [packages/deepbook_margin/sources/helper/oracle.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/helper/oracle.move)
 - `book/ch09/code/s03-borrow-and-trade/README.md`
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 杠杆买入常见路径：
 
@@ -37,19 +35,19 @@
 - 借款后风险率和成交后风险率。
 - 价格保护失败、流动性不足、风险率不足时的用户提示。
 
-补充说明：
+## 工程旁白
 
 杠杆买入的债务通常是 quote。base 价格下跌会降低资产价值并压低风险率；quote 利息增长也会逐步抬高 debt amount。因此交易确认页要同时显示价格风险和借款成本。
 
 市价买入最容易在订单簿深度不足时产生失败或过大滑点。`pool_proxy` 会做 effective price 与 oracle 检查，应用侧也应在提交前用订单簿快照给出最坏可接受价格。
 
-## 开发要点
+## Margin 应用判断
 
 - 买入 PTB 包含 borrow quote、place order、settle/refresh 三个逻辑步骤。
 - 所有价格和滑点提示都要标明基于当前订单簿，最终以 dry run 为准。
 - 成交后如果没有立即还款，继续展示 quote debt 的利息累计。
 
-## 检查问题
+## 动手检查
 
 - 买入后 debt asset 是否仍是 quote，base 下跌对风险率有什么影响？
 - 订单失败是 risk ratio 不足、oracle price out of bounds 还是 orderbook liquidity 不足？

@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先跑通场景
 
-- 构造 mint binary position 的 PTB，覆盖 UP/DOWN sentinel、oracle freshness 和 fee。
-- 把 fair price、fee、all-in ask 和 vault exposure 展示给用户。
-- 说明二元 mint 在当前版本下依赖GitHub 源码入口而非稳定 SDK。
+这一节从 Predict 的用户动作切入：先确认用户或 operator 要提交哪些对象和参数，再回到源码看市场状态如何被约束。
 
-## 源码关联
+## 源码入口
 
 - `packages/predict/sources/predict.move`：`mint<Quote>` 与 `quote_mint_amounts`。
 - `packages/predict/sources/market_key/range_key.move`：UP/DOWN sentinel。
 - `packages/predict/simulations/src/sim.ts`：oracle refresh + mint 的 scenario 执行。
 
-## 正文
+## 从仿真到交易
 
 仿真 `mintTx` 把二元方向转换成 `RangeKey`：UP 使用 `(strike, POS_INF]`，DOWN 使用 `(NEG_INF, strike]`。随后调用：
 
@@ -39,13 +37,13 @@ tx.moveCall({
 
 版本状态上，本章示例参考 `packages/predict/simulations/*` 与本地 `packages/predict/sources/*`。`PREDICT_MIGRATION.md` 中未完成的 Indexer、Server、部署脚本和 Oracle services 只能作为后续集成点。
 
-## 开发要点
+## Predict 应用判断
 
 - UP/DOWN 只改变 `RangeKey` sentinel，不改变 `predict::mint` 入口。
 - mint 前用 dev inspect 或本地 quote 计算 all-in ask，并与用户 slippage bound 比较。
 - dry run 摘要记录 fair price、fee、manager withdraw、vault payment 和 position increase。
 
-## 检查问题
+## 动手检查
 
 - UP 和 DOWN 的 lower/higher sentinel 分别如何设置？
 - 当前 `mint` 没有 max cost 参数时，应用如何保护用户？

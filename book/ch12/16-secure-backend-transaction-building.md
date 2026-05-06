@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 设计后端安全构造交易的 API 边界。
-- 后端保存请求、报价快照和 dry run 摘要，不保存私钥。
-- 对 Predict 交易强制校验版本状态和对象 ID。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `book/ch12/code/s05-wallet-flow/`、`s06-dry-run-helper/`：安全构造和错误解析。
 - `scripts/config/constants.ts`：对象 ID 白名单。
 - `packages/predict/sources/predict.move`：Predict 交易 target 白名单。
 
-## 正文
+## SDK 读法
 
 后端服务可以构造交易，但不应替用户签名。推荐接口是：
 
@@ -36,13 +34,13 @@ POST /deepbook/orders/limit/build
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 后端 API 校验 sender、pool/market key、manager key、金额、滑点和版本状态。
 - 响应包含 bytes、dry run 摘要、报价快照、过期时间和错误码。
 - 服务端日志保存 digest/requestId，不保存签名材料。
 
-## 检查问题
+## 动手检查
 
 - 构造交易 API 哪些参数必须由后端二次校验？
 - 报价快照和 dry run 摘要为什么要一起返回？

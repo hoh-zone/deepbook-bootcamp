@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看风险边界
 
-- 理解 `MarginPool<Asset>` 是单资产借贷池，负责供应、提款、借出、还款、利息和费用。
-- 能区分供应者的 supply shares 与借款人的 borrow shares，并说明二者如何由 `margin_state` 换算。
-- 能解释最大利用率、最小借款、供应上限和提款限速对应用体验的影响。
+这里先把问题放到风险控制面里。“MarginPool&lt;Asset&gt;”不是在 DeepBook 旁边加一层 UI，而是把 registry、manager、oracle、borrow/supply state 接进同一条链上风控路径。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -17,9 +15,9 @@
 - [packages/deepbook_margin/sources/margin_pool/protocol_config.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_pool/protocol_config.move)
 - [packages/deepbook_margin/sources/margin_pool/position_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_pool/position_manager.move)
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 源码定义
+## 关键定义
 
 `MarginPool` 的核心字段如下：
 
@@ -45,7 +43,7 @@ public struct MarginPool<phantom Asset> has key, store {
 
 供应入口是公开函数，借款入口是包内函数。这一点很重要：普通用户可以 supply，但借款必须通过 `MarginManager` 和协议内部风控路径进入，不能绕过 manager 直接从池子借资产。
 
-## 正文
+## 读风险控制面
 
 `MarginPool<Asset>` 是一个单资产借贷池。核心字段包括：
 
@@ -68,19 +66,19 @@ public struct MarginPool<phantom Asset> has key, store {
 
 还款分普通还款和清算还款：`repay` 按 shares 减少债务，`repay_liquidation` 还会把奖励、坏账或额外资产反映到 supply 侧。
 
-补充说明：
+## 工程旁白
 
 `MarginPool` 同时服务两类用户：供应者把资产放入 vault 获取 supply shares，交易者通过 manager 借出资产形成 borrow shares。供应者赚取的不是固定利息转账，而是 shares 对应的可提金额随 `total_supply` 增加。
 
 借款失败时要把池级限制和账户级限制分开：池级包括 vault 流动性、max utilization、min borrow 和 allowed DeepBook Pool；账户级包括借款后风险率。这样 UI 才能告诉用户是“池子没钱”还是“你的抵押不够”。
 
-## 开发要点
+## 风控判断
 
 - 供应和抵押是两个入口，供应资产不能直接提高某个 manager 的风险率。
 - 提款前读取 rate limiter 和 vault 余额，避免把 shares 可换算金额当成一定可提金额。
 - 清算还款走 `repay_liquidation`，它可能改变供应侧收益、奖励和坏账处理。
 
-## 检查问题
+## 动手检查
 
 - 用户看到的 APR 来自 `ProtocolConfig` 和当前 utilization，还是写死的显示值？
 - withdraw 可提金额是否同时考虑 shares、vault balance 和 rate limit？

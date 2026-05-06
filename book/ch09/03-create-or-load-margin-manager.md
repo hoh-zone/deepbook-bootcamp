@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看用户路径
 
-- 实现按 owner 和 pool key 创建或加载 `MarginManager` 的账户流程。
-- 能判断何时调用 `new`/注册，何时读取 registry 中已有 manager。
-- 能处理 manager 共享对象、owner 权限和注销前置条件。
+这一节从 Margin 用户动作读起：围绕“创建或加载 MarginManager”，先把 manager、collateral、loan、trade 和 repay 的顺序排清楚，再看源码入口。
 
-## 源码关联
+## 源码入口
 
 重点阅读：
 
@@ -16,9 +14,9 @@
 - [packages/deepbook_margin/sources/margin_registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_registry.move)
 - `book/ch09/code/s01-create-margin-manager/README.md`
 
-阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
+> **源码旁白**：先定位结构体、入口函数和事件，再回到本节的资金路径或应用流程。不要从 helper 函数开始读。
 
-## 正文
+## 把 PTB 串起来
 
 创建 manager 对应链上 `margin_manager.move` 的 `new` 或 `new_with_initializer`。SDK 通常会封装成类似 `client.deepbook.marginManager.createMarginManager(poolKey)` 的交易构造器，最终需要传 DeepBook Pool、DeepBook Registry、MarginRegistry、Clock 和 owner。
 
@@ -36,19 +34,19 @@
 - `margin_pool_id` 为空。
 - base、quote、DEEP 余额都为 0。
 
-补充说明：
+## 工程旁白
 
 应用首次进入某个交易对时，应先从 registry 或 indexer 查 `(owner, pool)` 是否已有 manager。没有时再构造创建交易；有多个 manager 时要提示用户选择或按业务规则固定使用一个。
 
 创建 manager 是账户初始化，不等于存入保证金或借款。创建成功后风险率通常仍为空或无债务状态，UI 应引导用户下一步存入抵押品，而不是展示可交易杠杆额度。
 
-## 开发要点
+## Margin 应用判断
 
 - manager ID 绑定 pool key 存储，切换交易对时重新加载。
 - 创建后等待 shared object 可读再允许后续 deposit/borrow。
 - 注销入口只在无债务、无余额、无挂单和无 TPSL 时显示。
 
-## 检查问题
+## 动手检查
 
 - 当前 owner 在这个 pool 是否已经有 manager？
 - 创建交易是否传入正确的 base/quote type arguments 和 DeepBook Pool ID？

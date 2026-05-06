@@ -2,6 +2,8 @@
 
 ## 本章目标
 
+官方 DeepBookV3 SDK 文档把 `@mysten/deepbook-v3` 定位为 TypeScript 集成层：它抽象交易调用、维护 coins/pools/managers 的 key-value 配置，并通过 Sui TypeScript SDK 构造和提交交易。本章在此基础上继续往工程化推进：不仅要会调用 SDK，还要知道 SDK 背后的 Move 入口、对象 ID、type arguments、dry run 和错误定位。
+
 本章把前面章节中的 Move 合约能力落到应用工程：用 `@mysten/deepbook-v3`、Sui SDK 和 PTB 把 DeepBook Spot、Margin、Predict 的核心交易封装成可复用服务。目标不是堆 API 清单，而是建立一套生产应用可以采用的 SDK 边界：配置集中管理、交易只构造不托管私钥、提交前 dry run、失败后能解析错误并定位到 Move 入口。
 
 本章代码放在 `book/ch12/code/`，每个目录都是可以扩展成 TypeScript 工程的骨架。
@@ -35,6 +37,7 @@ public fun generate_proof_as_owner(
 
 ## 源码地图
 
+- [Sui Docs: DeepBookV3 SDK](https://docs.sui.io/onchain-finance/deepbookv3-sdk/)：安装、constants、`DeepBookClient`、BalanceManager key、pool/coin/manager 配置和示例代码。
 - `scripts/config/constants.ts`：主网、测试网的 admin cap、margin cap、supplier cap、market maker 地址等配置来源。
 - `scripts/transactions/deepbookMarketMaker.ts`：继承 `DeepBookClient`，封装 keypair、`SuiClient`、签名提交、限价单和闪电贷 PTB。
 - `scripts/transactions/createPool.ts`：用 `SuiGrpcClient().$extend(deepbook(...))` 初始化 SDK，并调用 `deepBookAdmin.createPoolAdmin`。
@@ -87,6 +90,7 @@ public fun generate_proof_as_owner(
 
 ## 常见错误
 
+- 只复制官方 SDK 示例，不补 dry run、错误解析、钱包签名和对象版本刷新。
 - 把主网对象 ID 用在测试网交易中。
 - 前端要求用户导出私钥，而不是调用钱包签名。
 - 忽略 `BalanceManager` 所有权和 cap，导致交易 dry run 通过不了。

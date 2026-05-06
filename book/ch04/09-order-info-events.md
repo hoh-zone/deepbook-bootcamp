@@ -2,13 +2,11 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先看订单现场
 
-- 明确 OrderInfo 如何生成订单和成交事件 在 `Pool -> Book -> OrderInfo/Order` 撮合链中的职责。
-- 能指出本节涉及的订单字段、排序字段、事件或退款字段来自哪个 Move 模块。
-- 能用一笔具体订单解释价格优先、时间优先、成交、挂单、取消或查询结果如何产生。
+读这一节时，不要从函数名开始。先问一笔订单走到“OrderInfo 如何生成订单和成交事件”这个环节时，排序、成交、挂单、取消或退款中哪一个状态会发生变化。
 
-## 源码关联
+## 源码入口
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：下单、撤单和修改订单的 public 入口，负责进入对应 PoolInner。
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)：`match_against_book`、`inject_limit_order`、`cancel_order` 和买卖两侧 `BigVector<Order>`。
@@ -16,7 +14,7 @@
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)：`validate_inputs`、`match_maker`、`assert_execution` 和订单生命周期事件。
 - [packages/deepbook/sources/book/fill.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/fill.move)：`Fill` 的 maker 方向、成交数量、completed/expired 和结算字段。
 
-## 源码定义
+## 关键定义
 
 `OrderInfo` 是一次新订单从进入撮合到返回结果的临时对象：
 
@@ -68,7 +66,7 @@ public struct OrderFilled has copy, drop, store {
 }
 ```
 
-## 正文
+## 把订单走一遍
 
 `OrderInfo` 是一次 taker 订单的完整执行记录，也是事件源。它会 emit：
 
@@ -88,17 +86,17 @@ order_info.emit_order_fully_filled_if_filled(timestamp)
 
 Indexer 不应只依赖 `OrderFilled` 判断订单最终状态，还需要消费 `OrderInfo`、`OrderPlaced`、`OrderFullyFilled`、`OrderCanceled`、`OrderExpired`。
 
-补充阅读：阅读 OrderInfo 如何生成订单和成交事件 时，先从 [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move) 的入口确认交易类型，再沿 [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move) 追踪撮合、插入或取消路径。taker 的即时执行状态保存在 `OrderInfo`，maker 的可挂单状态保存在 `Order`，这两个对象不要混在一起看。
+> **源码旁白**：撮合相关小节都从 [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move) 的 public 入口进入，再沿 [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move) 追踪撮合、插入或取消。读的时候把 taker 的 `OrderInfo` 和 maker 的 `Order` 分开：前者是本次执行结果，后者才是可能继续留在订单簿里的状态。
 
 事件阅读时要把 `OrderPlaced`、`OrderFilled`、`OrderFullyFilled`、`OrderCanceled` 和 `OrderExpired` 串成生命周期。取消和过期还会触发锁定资产释放，退款由 `Order` 计算后进入结算路径。
 
-## 开发要点
+## 交易实现提醒
 
 - 用 `u128` + `BigInt` 思维处理 `order_id`、price、quantity，避免前端精度丢失。
 - 先判断订单会进入撮合、直接失败、完全吃单还是剩余挂单，再设计事件监听和 UI 状态。
 - 读取 `Fill` 和 `OrderInfo` 时同时记录 maker/taker 方向，避免把 base、quote 的应收应付方向写反。
 
-## 检查问题
+## 动手检查
 
 - OrderInfo 如何生成订单和成交事件 依赖哪一个 `pool.move` 入口，下一跳进入哪个 `book/*` 函数？
 - 成功路径会产生哪些订单事件，失败时最可能命中输入、执行策略还是余额相关校验？

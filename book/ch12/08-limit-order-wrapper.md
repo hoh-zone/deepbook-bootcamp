@@ -2,19 +2,17 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先定封装边界
 
-- 封装限价单 PTB，覆盖价格、数量、方向、过期和 self-matching 选项。
-- 绑定 `pool.move` 入口或 DeepBook SDK builder。
-- 在 dry run 后解析余额、cap、lot size 和版本错误。
+SDK 小节先看封装边界：好的服务层不是隐藏 Move，而是减少对象、精度、权限和网络配置错误，同时保留 dry run 与错误定位能力。
 
-## 源码关联
+## 源码入口
 
 - `scripts/transactions/deepbookMarketMaker.ts`：限价单 SDK 调用示例。
 - `packages/deepbook/sources/pool.move`：`place_limit_order` 等入口。
 - `scripts/utils/utils.ts`：dry run 与 gas 设置。
 
-## 源码定义
+## 关键定义
 
 SDK wrapper 最终要构造这个 Move call：
 
@@ -44,7 +42,7 @@ public fun place_limit_order<BaseAsset, QuoteAsset>(
 - `orderType/selfMatchingOption` -> DeepBook 常量。
 - `expire_timestamp` -> 毫秒时间戳或默认过期策略。
 
-## 正文
+## SDK 读法
 
 限价单对应 `packages/deepbook/sources/pool.move` 的 `place_limit_order`。SDK 层不要直接暴露 Move 参数顺序，而是暴露领域参数：
 
@@ -68,13 +66,13 @@ type LimitOrderInput = {
 
 Predict 相关接口必须额外校验 `predictVersionStatus`、package ID、registry ID、predict object ID、oracle ID 和 quote coin type。由于迁移文档未把 Predict SDK、Indexer 或 Server 标为稳定完成，本章只把它们写成 raw Move 封装或未来服务边界。
 
-## 开发要点
+## 封装判断
 
 - 限价单请求验证 poolKey、price、quantity、isBid、expiration、clientOrderId。
 - PTB target 或 SDK builder 调用要能在单元测试中断言。
 - dry run 后检查订单对象变化、余额锁定和 Move abort。
 
-## 检查问题
+## 动手检查
 
 - 限价单服务方法最少需要哪些参数？
 - price/quantity 精度错误会导致哪类失败？

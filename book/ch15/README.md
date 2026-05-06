@@ -2,9 +2,9 @@
 
 ## 本章目标
 
-- 建立 DeepBook 应用的测试体系。
-- 梳理金融协议开发的安全清单。
-- 给出部署、监控、审计和书稿交付标准。
+最后一章把全书从“能读、能写、能跑”推进到“能交付”。DeepBook 应用涉及资金、共享对象、链上事件、Indexer、Server、SDK、钱包和运维系统；任何一层没有测试和证据，都会在生产环境变成不可解释的风险。
+
+本章目标是建立一套完整的交付标准：Move 单元测试证明协议边界，SDK 和 dry run 测试证明交易构造，Indexer snapshot 证明读模型稳定，前端 E2E 证明用户路径可用，监控和故障演练证明系统可以在异常时降级，出版级清单证明书稿和代码可以被读者复现。
 
 ## 本章学习阶梯
 
@@ -13,13 +13,15 @@
 - L4 准备部署、升级、监控、故障演练和审计材料。
 - L5 把全书项目整理成出版级交付。
 
-## 源码地图
+## 验收地图
 
-- [packages/deepbook/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/tests)：核心 DeepBook Move 测试。
-- [packages/deepbook_margin/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/tests)：Margin 单元和集成测试。
-- [packages/predict/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/tests)：Predict 行为测试。
-- [crates/indexer/tests/snapshot_tests.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/tests/snapshot_tests.rs)：Indexer 快照测试。
-- [docker](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/docker)：部署容器。
+| 证据类型 | 主要入口 | 验证什么 |
+| --- | --- | --- |
+| Move 测试 | [packages/deepbook/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/tests)、[packages/deepbook_margin/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/tests)、[packages/predict/tests](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/tests) | 资源约束、权限、撮合、风险和结算边界。 |
+| Indexer 快照 | [crates/indexer/tests/snapshot_tests.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/tests/snapshot_tests.rs) | 事件到数据库行的读模型合同。 |
+| SDK / PTB 测试 | `book/ch12/code/` 与交易脚本 | 对象 ID、type arguments、dry run、错误解析和钱包签名交接。 |
+| 部署证据 | [docker](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/docker) 与 `book/ch15/code/s05-deployment-compose/` | 服务拓扑、健康检查、回滚和配置隔离。 |
+| 书稿验收 | `book/STYLE_GUIDE.md`、`BOOK_TODO.md`、本章清单 | 术语、源码路径、命令、风险披露和章节质量。 |
 
 ## 小节目录
 
@@ -64,6 +66,7 @@
 - 忘记 Indexer 和 Server 的版本兼容。
 - 没有记录交易 digest，导致线上问题无法追踪。
 - 书稿代码无法运行或缺少依赖说明。
+- 书稿写成“功能介绍”，但没有给出可复现命令、失败路径和风险边界。
 
 ## 本章检查清单
 
@@ -78,5 +81,4 @@
 - 为 Spot 交易写一份测试矩阵。
 - 为 Margin 清算写一份威胁模型。
 - 为 Indexer 设计一次全量重放演练。
-
 

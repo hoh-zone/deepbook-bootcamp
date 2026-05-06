@@ -1,8 +1,9 @@
 # Summary
 
 - [前言](README.md)
+- [官方文档基线：本书如何对齐 Sui 文档](OFFICIAL_DOCS_BASELINE.md)
 - [先读：从易到难学习路线](LEARNING_PATH.md)
-- [源码定义地图：结构体、方法和事件怎么读](SOURCE_DEFINITION_ATLAS.md)
+- [关键定义地图：结构体、方法和事件怎么读](SOURCE_DEFINITION_ATLAS.md)
 - [阅读说明：把 DeepBook 当作高级 Move 案例](MOVE_READING_GUIDE.md)
 
 # 第一阶：建立直觉，不急着读源码

@@ -2,24 +2,22 @@
 
 [返回本章](README.md)
 
-## 本节目标
+## 先建立手感
 
-- 用 Move 测试复现对象创建、共享和交易调用场景。
-- 能沿“Move 单元测试和 test_scenario”定位相关 Move 源码、脚本或链下服务入口。
-- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+这一节用“Move 单元测试和 test_scenario”训练 Move 手感：先看对象和资源能不能被复制、丢弃、转移，再回到 DeepBook 里判断为什么这些限制有实际价值。
 
-## 源码关联
+## 源码入口
 
-本节重点对照以下源码或后续阅读入口：
+这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
 
 - [packages/deepbook/sources/hello_move.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/hello_move.move)
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - `book/ch02/code/s03-shared-object/README.md`
 
-阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
 
-## 正文
+## 拆开来看
 
 Move 单元测试通常放在同包源码或测试模块中，使用 `#[test]`、`#[test_only]` 标注。`hello_move.move` 末尾提供 `#[test_only] public fun test_helper_function(): u64`，说明测试辅助函数可以只在测试环境可见。
 
@@ -38,13 +36,13 @@ Move 单元测试适合验证纯逻辑、资源约束和 abort 条件；`test_sc
 
 写测试时不要只覆盖成功路径。金融协议文档中的检查问题最好都能变成一个 abort 测试：错误权限、错误资产类型、数量不满足 lot size、版本关闭等。
 
-## 开发要点
+## Move 判断
 
 - 先测小模块资源约束，再组合交易场景。
 - 每个 abort 分支至少保留一个可读测试名称。
 - 多地址场景要显式切换 sender，避免误判所有权。
 
-## 检查问题
+## 动手检查
 
 - 普通 Move 单元测试和 `test_scenario` 各适合什么问题？
 - DeepBook 下单为什么不适合一开始就写成超大集成测试？
