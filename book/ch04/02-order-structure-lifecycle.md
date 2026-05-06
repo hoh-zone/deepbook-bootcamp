@@ -14,6 +14,33 @@
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)：`match_against_book`、`inject_limit_order`、`cancel_order` 和买卖两侧 `BigVector<Order>`。
 - [packages/deepbook/sources/book/order.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order.move)：`Order` 字段、`get_order_id`、`generate_fill`、`locked_balance` 和取消退款。
 
+## 源码定义
+
+`Order` 是真正会留在订单簿里的 maker 状态：
+
+```move
+public struct Order has drop, store {
+    balance_manager_id: ID,
+    order_id: u128,
+    client_order_id: u64,
+    quantity: u64,
+    filled_quantity: u64,
+    fee_is_deep: bool,
+    order_deep_price: OrderDeepPrice,
+    epoch: u64,
+    status: u8,
+    expire_timestamp: u64,
+}
+```
+
+字段要按三组理解：
+
+- 归属字段：`balance_manager_id`、`client_order_id`。
+- 撮合字段：`order_id`、`quantity`、`filled_quantity`、`status`、`expire_timestamp`。
+- 费用字段：`fee_is_deep`、`order_deep_price`、`epoch`。
+
+`Order` 没有 `trader: address` 字段，因为订单归属以 `BalanceManager` 为中心。事件中看到的 trader，是在取消、成交或事件生成时补出来的上下文，不是订单簿长期状态。
+
 ## 正文
 
 `order.move` 的 `Order` 是挂在订单簿里的 maker 状态，字段包括：

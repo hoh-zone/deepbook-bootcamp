@@ -14,6 +14,31 @@
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)：底层 `FlashLoan` hot potato、`FlashLoanBorrowed` 事件、pool/asset/amount 校验和 Vault 余额 split/join。
 - `book/ch07/code/s01-flashloan-move-wrapper`、`s02-flashloan-ptb`、`s03-flashloan-event-query`、`s04-flashloan-indexer-row`：本节对应的 wrapper、PTB、事件和表查询示例。
 
+## 源码定义
+
+Pool 层公开入口：
+
+```move
+public fun borrow_flashloan_base<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    base_amount: u64,
+    ctx: &mut TxContext,
+): (Coin<BaseAsset>, FlashLoan)
+```
+
+Vault 层底层实现返回两个资源：
+
+```move
+public(package) fun borrow_flashloan_base<BaseAsset, QuoteAsset>(
+    self: &mut Vault<BaseAsset, QuoteAsset>,
+    pool_id: ID,
+    borrow_quantity: u64,
+    ctx: &mut TxContext,
+): (Coin<BaseAsset>, FlashLoan)
+```
+
+返回值 `(Coin<BaseAsset>, FlashLoan)` 必须一起读。`Coin<BaseAsset>` 是你借到的资产，`FlashLoan` 是必须在同一 PTB 中归还时消费的证明。没有 `FlashLoan`，你无法完成 return；没有 return，交易无法结束。
+
 ## 正文
 
 调用路径：

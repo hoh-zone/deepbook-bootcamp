@@ -15,6 +15,42 @@
 - [packages/deepbook/sources/state/account.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/account.move)：账户维度的 open orders、settled/owed balances、stake、rebate 和成交后状态。
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：交易、stake、claim rebate、治理和 manager 结算的对外入口。
 
+## 源码定义
+
+存入和取出入口很直接：
+
+```move
+public fun deposit<T>(
+    balance_manager: &mut BalanceManager,
+    coin: Coin<T>,
+    ctx: &mut TxContext,
+)
+
+public fun withdraw<T>(
+    balance_manager: &mut BalanceManager,
+    withdraw_amount: u64,
+    ctx: &mut TxContext,
+): Coin<T>
+
+public fun withdraw_all<T>(
+    balance_manager: &mut BalanceManager,
+    ctx: &mut TxContext,
+): Coin<T>
+```
+
+每次余额变化都会发出事件：
+
+```move
+public struct BalanceEvent has copy, drop {
+    balance_manager_id: ID,
+    asset: TypeName,
+    amount: u64,
+    deposit: bool,
+}
+```
+
+这说明前端余额页不能只查当前对象字段。要做流水、审计或用户历史，就必须读 `BalanceEvent`。`deposit: true` 是入账，`deposit: false` 是出账；`asset` 是完整类型名，不是 UI ticker。
+
 ## 正文
 
 存入路径是 `balance_manager::deposit<T>(manager, coin, ctx)` 或 `deposit_with_cap<T>`。函数先发出 `BalanceEvent { balance_manager_id, asset, amount, deposit: true }`，再把 `Coin<T>` 转为 `Balance<T>`，通过 `deposit_with_proof` 合并到 `balances`。

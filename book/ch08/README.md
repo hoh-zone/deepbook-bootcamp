@@ -13,6 +13,47 @@
 - L4 能解释借款、还款、清算和风险率变化的完整路径。
 - L5 能为 Margin 协议做安全边界和异常路径审查。
 
+## 关键定义卡片
+
+Margin 的用户账户不是普通仓位对象，而是一个包装了 DeepBook 账户能力的共享对象：
+
+```move
+public struct MarginManager<phantom BaseAsset, phantom QuoteAsset> has key {
+    id: UID,
+    owner: address,
+    deepbook_pool: ID,
+    margin_pool_id: Option<ID>,
+    balance_manager: BalanceManager,
+    deposit_cap: DepositCap,
+    withdraw_cap: WithdrawCap,
+    trade_cap: TradeCap,
+    borrowed_base_shares: u64,
+    borrowed_quote_shares: u64,
+    take_profit_stop_loss: TakeProfitStopLoss,
+    extra_fields: VecMap<String, u64>,
+}
+```
+
+这段定义解释了 Margin 为什么必须先懂 Spot：`MarginManager` 内部直接持有 `BalanceManager` 和 cap。Margin 交易通过这些能力调用 DeepBook 池，同时额外检查借贷 shares、oracle 和风险率。
+
+借贷池定义：
+
+```move
+public struct MarginPool<phantom Asset> has key, store {
+    id: UID,
+    vault: Balance<Asset>,
+    state: State,
+    config: ProtocolConfig,
+    protocol_fees: ProtocolFees,
+    positions: PositionManager,
+    allowed_deepbook_pools: VecSet<ID>,
+    rate_limiter: RateLimiter,
+    extra_fields: VecMap<String, u64>,
+}
+```
+
+`vault` 保存供应资产，`state` 记录 shares 和利息，`allowed_deepbook_pools` 控制哪些 Spot 池可以接入这个借贷资产。Margin 的风险不是单个字段能解释的，必须把 manager、pool、registry 和 oracle 放在一起读。
+
 ## 源码地图
 
 - [packages/deepbook_margin/sources/margin_registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/sources/margin_registry.move)：Margin 全局注册表，保存版本开关、DeepBook Pool 配置、MarginPool 映射、用户 manager 列表和价格保护数据。

@@ -11,6 +11,47 @@
 - L4 能设计 owner/trader/cap/proof 的权限模型。
 - L5 能为交易终端或做市系统设计资金安全检查。
 
+## 关键定义卡片
+
+`BalanceManager` 是本章主角：
+
+```move
+public struct BalanceManager has key, store {
+    id: UID,
+    owner: address,
+    balances: Bag,
+    allow_listed: VecSet<ID>,
+}
+
+public struct TradeProof has drop {
+    balance_manager_id: ID,
+    trader: address,
+}
+```
+
+`balances` 不是钱包余额，而是协议内部余额。`allow_listed` 保存被授权的 cap ID。`TradeProof` 是交易内权限证明，说明调用者可以代表这个 manager 交易。它有 `drop`，所以不会成为长期权限对象。
+
+关键权限对象：
+
+```move
+public struct TradeCap has key, store {
+    id: UID,
+    balance_manager_id: ID,
+}
+
+public struct DepositCap has key, store {
+    id: UID,
+    balance_manager_id: ID,
+}
+
+public struct WithdrawCap has key, store {
+    id: UID,
+    balance_manager_id: ID,
+}
+```
+
+这三个 cap 把交易、存入、取出拆开。做市机器人通常只应拿 `TradeCap`，不应该拿 `WithdrawCap`。读到任何下单失败时，先问三个问题：manager 里是否有余额，proof 是否指向这个 manager，cap 是否仍在 allow list。
+
 ## 源码地图
 
 - `packages/deepbook/sources/balance_manager.move`：用户资金账户、owner、cap、`TradeProof`、存取款事件。
@@ -70,4 +111,3 @@
 1. 设计一张交易费用结算表，列出 maker/taker、买/卖、DEEP/input fee 四种组合。
 2. 手工推演一次卖单成交后 maker 和 taker 的 `settled_balances` 与 `owed_balances`。
 3. 写一个监控脚本，订阅 `BalanceEvent`、`OrderFilled`、`TradeParamsUpdateEvent`，重建某个 manager 的资金流水。
-

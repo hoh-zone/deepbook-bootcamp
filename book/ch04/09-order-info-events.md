@@ -16,6 +16,58 @@
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)：`validate_inputs`、`match_maker`、`assert_execution` 和订单生命周期事件。
 - [packages/deepbook/sources/book/fill.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/fill.move)：`Fill` 的 maker 方向、成交数量、completed/expired 和结算字段。
 
+## 源码定义
+
+`OrderInfo` 是一次新订单从进入撮合到返回结果的临时对象：
+
+```move
+public struct OrderInfo has copy, drop, store {
+    pool_id: ID,
+    order_id: u128,
+    balance_manager_id: ID,
+    client_order_id: u64,
+    trader: address,
+    order_type: u8,
+    self_matching_option: u8,
+    price: u64,
+    is_bid: bool,
+    original_quantity: u64,
+    executed_quantity: u64,
+    cumulative_quote_quantity: u64,
+    fills: vector<Fill>,
+    fee_is_deep: bool,
+    paid_fees: u64,
+    maker_fees: u64,
+    epoch: u64,
+    status: u8,
+    market_order: bool,
+    fill_limit_reached: bool,
+    order_inserted: bool,
+    timestamp: u64,
+}
+```
+
+这组字段把“订单意图”和“执行结果”放在同一个结构里。`original_quantity` 是用户输入，`executed_quantity` 是成交 base 数量，`cumulative_quote_quantity` 是成交 quote 总量，`fills` 保存每个 maker 切片。`order_inserted` 很关键：它告诉你这笔订单是否最终进入订单簿。完全吃单、IOC 剩余取消或 FOK 失败，都不应在前端显示成一个 live maker order。
+
+成交事件也直接来自 `OrderInfo` 中的 fill：
+
+```move
+public struct OrderFilled has copy, drop, store {
+    pool_id: ID,
+    maker_order_id: u128,
+    taker_order_id: u128,
+    price: u64,
+    taker_is_bid: bool,
+    taker_fee: u64,
+    maker_fee: u64,
+    base_quantity: u64,
+    quote_quantity: u64,
+    maker_balance_manager_id: ID,
+    taker_balance_manager_id: ID,
+    timestamp: u64,
+}
+```
+
 ## 正文
 
 `OrderInfo` 是一次 taker 订单的完整执行记录，也是事件源。它会 emit：

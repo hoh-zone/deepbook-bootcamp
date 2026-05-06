@@ -14,6 +14,34 @@
 - L3 设计订单、成交、闪电贷、Margin 事件的表和 API。
 - L5 处理 checkpoint lag、缓存一致性、部署和监控。
 
+## 关键定义卡片
+
+Indexer 的核心不是“查对象”，而是把事件落成读模型。以成交事件为例：
+
+```rust
+define_handler! {
+    name: OrderFillHandler,
+    processor_name: "order_fill",
+    event_type: OrderFilled,
+    db_model: OrderFill,
+    table: order_fills,
+    map_event: |event, meta| OrderFill {
+        event_digest: meta.event_digest(),
+        digest: meta.digest(),
+        checkpoint: meta.checkpoint(),
+        pool_id: event.pool_id.to_string(),
+        maker_order_id: event.maker_order_id.to_string(),
+        taker_order_id: event.taker_order_id.to_string(),
+        price: event.price as i64,
+        base_quantity: event.base_quantity as i64,
+        quote_quantity: event.quote_quantity as i64,
+        onchain_timestamp: event.timestamp as i64,
+    }
+}
+```
+
+这段定义告诉我们四件事：事件类型是 `OrderFilled`，目标表是 `order_fills`，主键语义来自 `event_digest`，时间窗口查询依赖 checkpoint 和 onchain timestamp。前端成交历史、K 线和账户流水都应该从事件语义设计，而不是从当前对象状态反推。
+
 ## 源码地图
 
 - [crates/indexer/src/main.rs](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/src/main.rs)：Indexer 启动参数、环境选择、pipeline 注册。
@@ -85,5 +113,4 @@
 - 为 `order_fills` 设计一个 1 分钟 K 线物化视图。
 - 为 `flashloans` 写一个按池子统计每日借出数量的 SQL。
 - 设计一个当 checkpoint lag 超过阈值时自动暂停做市机器人的机制。
-
 

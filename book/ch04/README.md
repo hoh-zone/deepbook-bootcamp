@@ -14,6 +14,66 @@
 - L4 能解释 post-only、IOC、FOK、自成交策略的失败边界。
 - L5 能把撮合结果还原成前端订单状态和 Indexer 数据。
 
+## 关键定义卡片
+
+撮合章先分清 `Order`、`OrderInfo`、`Fill`：
+
+```move
+public struct Order has drop, store {
+    balance_manager_id: ID,
+    order_id: u128,
+    client_order_id: u64,
+    quantity: u64,
+    filled_quantity: u64,
+    fee_is_deep: bool,
+    order_deep_price: OrderDeepPrice,
+    epoch: u64,
+    status: u8,
+    expire_timestamp: u64,
+}
+```
+
+`Order` 是可以留在订单簿里的 maker 状态。它有 `filled_quantity`、`status` 和 `expire_timestamp`，所以取消、过期、部分成交都能从这里更新。
+
+```move
+public struct OrderInfo has copy, drop, store {
+    pool_id: ID,
+    order_id: u128,
+    balance_manager_id: ID,
+    client_order_id: u64,
+    trader: address,
+    order_type: u8,
+    self_matching_option: u8,
+    price: u64,
+    is_bid: bool,
+    original_quantity: u64,
+    executed_quantity: u64,
+    cumulative_quote_quantity: u64,
+    fills: vector<Fill>,
+    status: u8,
+    market_order: bool,
+    order_inserted: bool,
+    timestamp: u64,
+}
+```
+
+`OrderInfo` 是一次新订单的生命周期结果。完全吃单的市价单可能只返回 `OrderInfo`，不会插入簿成为 `Order`。这也是前端和 Indexer 容易写错的地方。
+
+```move
+public struct Fill has copy, drop, store {
+    maker_order_id: u128,
+    execution_price: u64,
+    balance_manager_id: ID,
+    base_quantity: u64,
+    quote_quantity: u64,
+    taker_is_bid: bool,
+    taker_fee: u64,
+    maker_fee: u64,
+}
+```
+
+`Fill` 是一笔 taker 与一个 maker 的成交切片，不是一整笔订单。一个 taker 订单可能产生多个 `Fill`。
+
 ## 源码地图
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：`place_limit_order`、`place_market_order`、`modify_order`、`cancel_order`、`cancel_live_order` 等外部入口。
@@ -75,4 +135,3 @@
 - 练习 1：用 BigInt 写一个 `decodeOrderId`，输入链上 order id 后输出 side、price、sequence。
 - 练习 2：构造一个 maker 过期场景，解释为什么 `Fill.expired = true` 但它仍会参与移除订单和释放锁定资产。
 - 练习 3：设计一个包含 4 个 maker 的订单簿，分别推演普通限价、IOC 和 FOK taker 的最终状态。
-

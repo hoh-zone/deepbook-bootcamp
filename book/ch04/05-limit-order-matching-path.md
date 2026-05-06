@@ -14,6 +14,30 @@
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)：`match_against_book`、`inject_limit_order`、`cancel_order` 和买卖两侧 `BigVector<Order>`。
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)：`validate_inputs`、`match_maker`、`assert_execution` 和订单生命周期事件。
 
+## 源码定义
+
+限价单的入口签名本身就是完整参数表：
+
+```move
+public fun place_limit_order<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    balance_manager: &mut BalanceManager,
+    trade_proof: &TradeProof,
+    client_order_id: u64,
+    order_type: u8,
+    self_matching_option: u8,
+    price: u64,
+    quantity: u64,
+    is_bid: bool,
+    pay_with_deep: bool,
+    expire_timestamp: u64,
+    clock: &Clock,
+    ctx: &TxContext,
+): OrderInfo
+```
+
+读这个签名时，不要只看 `price` 和 `quantity`。`self` 和 `balance_manager` 都是 `&mut`，说明一次下单会同时改变池状态和用户交易账户。`trade_proof` 是权限边界。`order_type` 和 `self_matching_option` 决定订单是否可以剩余挂单、是否必须完全成交、遇到自成交时取消哪一侧。返回值 `OrderInfo` 是本次执行结果，不能直接等同于订单簿上的 `Order`。
+
 ## 正文
 
 限价单入口是 `pool::place_limit_order`，参数包括 BalanceManager、TradeProof、client order id、order type、self matching option、price、quantity、side、pay_with_deep、expire timestamp、Clock。

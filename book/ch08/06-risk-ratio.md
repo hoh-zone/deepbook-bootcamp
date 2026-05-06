@@ -19,6 +19,31 @@
 
 阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
 
+## 源码定义
+
+风险阈值来自 `PoolConfig` 和 `RiskRatios`：
+
+```move
+public struct PoolConfig has copy, drop, store {
+    base_margin_pool_id: ID,
+    quote_margin_pool_id: ID,
+    risk_ratios: RiskRatios,
+    user_liquidation_reward: u64,
+    pool_liquidation_reward: u64,
+    enabled: bool,
+    extra_fields: VecMap<String, u64>,
+}
+
+public struct RiskRatios has copy, drop, store {
+    min_withdraw_risk_ratio: u64,
+    min_borrow_risk_ratio: u64,
+    liquidation_risk_ratio: u64,
+    target_liquidation_risk_ratio: u64,
+}
+```
+
+这不是前端配置项，而是链上风控参数。`enabled` 控制某个 DeepBook pool 是否允许 Margin 交易；`base_margin_pool_id` 和 `quote_margin_pool_id` 指向可借资产池；四个 risk ratio 决定借款、提款、清算触发和清算目标。UI 中如果只显示一个“健康度”，会掩盖这些动作边界。
+
 ## 正文
 
 风险率在 `margin_manager.move` 的 `risk_ratio`、`risk_ratio_unsafe`、`risk_ratio_int` 中计算。直观公式是：

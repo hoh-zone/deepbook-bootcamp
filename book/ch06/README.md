@@ -11,6 +11,30 @@
 - L3 把每个交易调用反向映射到 `pool.move` 入口。
 - L4 做出 CLI 或 Web 交易面板，并处理错误和刷新。
 
+## 关键定义卡片
+
+Spot 应用开发最先要读的是下单签名，而不是 SDK 封装名：
+
+```move
+public fun place_limit_order<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    balance_manager: &mut BalanceManager,
+    trade_proof: &TradeProof,
+    client_order_id: u64,
+    order_type: u8,
+    self_matching_option: u8,
+    price: u64,
+    quantity: u64,
+    is_bid: bool,
+    pay_with_deep: bool,
+    expire_timestamp: u64,
+    clock: &Clock,
+    ctx: &TxContext,
+): OrderInfo
+```
+
+这就是应用侧的对象清单：`Pool`、`BalanceManager`、`TradeProof`、`Clock`、base/quote 类型参数，以及整数化后的价格和数量。前端表单里的 decimal、side、order type、过期时间和费用选项，最后都要落到这个签名上。dry run 失败时，也应按这个签名反查：对象是否同网，manager 是否有余额，proof 是否有效，price/quantity 是否符合 tick 和 lot。
+
 ## 源码地图
 
 - `packages/deepbook/sources/pool.move`：Spot 交易对外入口。
@@ -72,4 +96,3 @@
 1. 实现一个本地订单簿聚合器，把 `iter_orders` 返回的订单按价格聚合。
 2. 写一个市价单 dry run 工具，输出预估成交均价、手续费和最差可接受输出。
 3. 给做市机器人加库存上限，超过上限自动停止单侧报价。
-

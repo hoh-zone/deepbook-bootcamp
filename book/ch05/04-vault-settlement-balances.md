@@ -15,6 +15,32 @@
 - [packages/deepbook/sources/state/account.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/account.move)：账户维度的 open orders、settled/owed balances、stake、rebate 和成交后状态。
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：交易、stake、claim rebate、治理和 manager 结算的对外入口。
 
+## 源码定义
+
+Vault 是池子的真实资产保管层：
+
+```move
+public struct Vault<phantom BaseAsset, phantom QuoteAsset> has store {
+    base_balance: Balance<BaseAsset>,
+    quote_balance: Balance<QuoteAsset>,
+    deep_balance: Balance<DEEP>,
+}
+```
+
+这三个字段分别保存 base、quote 和 DEEP。撮合不会直接从 maker 钱包转给 taker 钱包，而是先计算 `balances_in` 和 `balances_out`，再由 Vault 与 `BalanceManager` 做差额结算。
+
+结算时可以把逻辑理解成一个净额表：
+
+```text
+if balances_out.asset > balances_in.asset:
+    Vault split 差额 -> deposit 到 BalanceManager
+
+if balances_in.asset > balances_out.asset:
+    BalanceManager withdraw 差额 -> join 到 Vault
+```
+
+这样写的好处是一次交易可以同时处理成交、费用、返还和剩余锁定释放，而不是在撮合循环中到处转 coin。
+
 ## 正文
 
 `Vault<BaseAsset, QuoteAsset>` 持有 `base_balance`、`quote_balance`、`deep_balance`。它是池子的真实资产金库。`pool.place_order_int` 的资金路径是：

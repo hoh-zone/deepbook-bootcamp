@@ -14,6 +14,29 @@
 - L4 解释版本、注册、capability 和对象借用如何影响真实交易。
 - L5 能画出协议升级或交易失败时的排查路径。
 
+## 关键定义卡片
+
+先看 `Pool`，不要急着进入撮合函数：
+
+```move
+public struct Pool<phantom BaseAsset, phantom QuoteAsset> has key {
+    id: UID,
+    inner: Versioned,
+}
+
+public struct PoolInner<phantom BaseAsset, phantom QuoteAsset> has store {
+    allowed_versions: VecSet<u64>,
+    pool_id: ID,
+    book: Book,
+    state: State,
+    vault: Vault<BaseAsset, QuoteAsset>,
+    deep_price: DeepPrice,
+    registered_pool: bool,
+}
+```
+
+这段定义说明 DeepBookV3 的池不是“只有订单簿”。`Pool` 是外部 PTB 传入的共享对象，`PoolInner` 才是业务状态。`book` 管撮合，`state` 管账户、历史、费用和治理，`vault` 管真实资产，`allowed_versions` 管升级后的可用版本。读 `place_limit_order` 时要把这四个内部对象都带上，否则会误以为下单只是 `Book` 内部操作。
+
 ## 源码地图
 
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：DeepBookV3 对外交易入口，定义 `Pool<BaseAsset, QuoteAsset>`、`PoolInner`、下单、交换、取消、治理、闪电贷入口。
@@ -80,4 +103,3 @@
 - 练习 1：打开 `pool.move`，列出每个 public mutative 函数需要 mutable borrow 的对象，并判断它们的并发边界。
 - 练习 2：从 `Registry::register_pool` 出发，解释为什么反向交易对不能重复注册。
 - 练习 3：用一次部分成交订单，画出 `OrderInfo`、`Fill`、`State`、`Vault` 的状态变化表。
-

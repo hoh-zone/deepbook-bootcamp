@@ -4,6 +4,7 @@
 
 - `SUMMARY.md`：全书目录。
 - `LEARNING_PATH.md`：从易到难的六阶阅读路线。
+- `SOURCE_DEFINITION_ATLAS.md`：关键结构体、方法和事件的内嵌源码定义地图。
 - `MOVE_READING_GUIDE.md`：高级 Move + DeepBook 的阅读方法。
 - `STYLE_GUIDE.md`：章节写作规范。
 - `chXX/README.md`：每章导读、源码地图、小节目录和章节检查清单。

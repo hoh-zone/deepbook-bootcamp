@@ -14,6 +14,41 @@
 - [packages/deepbook/sources/state/account.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/account.move)：账户维度的 open orders、settled/owed balances、stake、rebate 和成交后状态。
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)：交易、stake、claim rebate、治理和 manager 结算的对外入口。
 
+## 源码定义
+
+`BalanceManager` 本体和交易证明：
+
+```move
+public struct BalanceManager has key, store {
+    id: UID,
+    owner: address,
+    balances: Bag,
+    allow_listed: VecSet<ID>,
+}
+
+public struct TradeProof has drop {
+    balance_manager_id: ID,
+    trader: address,
+}
+```
+
+`TradeProof` 的生成入口：
+
+```move
+public fun generate_proof_as_owner(
+    balance_manager: &BalanceManager,
+    ctx: &TxContext,
+): TradeProof
+
+public fun generate_proof_as_trader(
+    balance_manager: &BalanceManager,
+    trade_cap: &TradeCap,
+    ctx: &TxContext,
+): TradeProof
+```
+
+`owner` 可以直接生成 proof。非 owner 必须持有仍在 `allow_listed` 里的 `TradeCap`。这就是 DeepBook 权限模型的核心：交易权限和提款权限可以分开，机器人可以交易但不应能提现。
+
 ## 正文
 
 `balance_manager::new(ctx)` 创建 owner 为 `ctx.sender()` 的 manager，并发出 `BalanceManagerEvent { balance_manager_id, owner }`。`new_with_custom_owner(owner, ctx)` 允许为指定地址创建。应用若要由托管服务或机器人代操作，应使用 cap 模型：`mint_trade_cap`、`mint_deposit_cap`、`mint_withdraw_cap` 只能由 owner 调用，内部会把 cap ID 放入 allow list。

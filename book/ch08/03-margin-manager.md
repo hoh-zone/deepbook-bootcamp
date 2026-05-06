@@ -18,6 +18,35 @@
 
 阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
 
+## 源码定义
+
+`MarginManager` 的定义直接说明它为什么复杂：
+
+```move
+public struct MarginManager<phantom BaseAsset, phantom QuoteAsset> has key {
+    id: UID,
+    owner: address,
+    deepbook_pool: ID,
+    margin_pool_id: Option<ID>,
+    balance_manager: BalanceManager,
+    deposit_cap: DepositCap,
+    withdraw_cap: WithdrawCap,
+    trade_cap: TradeCap,
+    borrowed_base_shares: u64,
+    borrowed_quote_shares: u64,
+    take_profit_stop_loss: TakeProfitStopLoss,
+    extra_fields: VecMap<String, u64>,
+}
+```
+
+字段分三层读：
+
+- 账户层：`owner`、`balance_manager`、三种 cap。
+- 市场层：`deepbook_pool`、`margin_pool_id`。
+- 风险层：`borrowed_base_shares`、`borrowed_quote_shares`、`take_profit_stop_loss`。
+
+这不是“一个仓位对象”，而是一个能代表用户调用 DeepBook、同时被 Margin 风控约束的共享账户。
+
 ## 正文
 
 `MarginManager<BaseAsset, QuoteAsset>` 是一个共享对象，代表用户在某个 DeepBook Pool 上的 Margin 账户。它绑定：

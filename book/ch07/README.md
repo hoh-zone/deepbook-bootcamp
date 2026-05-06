@@ -11,6 +11,36 @@
 - L4 构造一个成功和一个失败的闪电贷 PTB。
 - L5 能把闪电贷放进套利、清算或组合交易，并设计风险检查。
 
+## 关键定义卡片
+
+DeepBookV3 闪电贷的定义在 `vault.move`，入口暴露在 `pool.move`：
+
+```move
+public struct FlashLoan {
+    pool_id: ID,
+    borrow_quantity: u64,
+    type_name: TypeName,
+}
+```
+
+`FlashLoan` 没有 `drop`，所以它是 hot potato。借出后必须在同一笔交易里归还并消费掉。三个字段就是归还校验条件：池子必须相同，资产类型必须相同，数量必须完全相同。
+
+```move
+public fun borrow_flashloan_base<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    base_amount: u64,
+    ctx: &mut TxContext,
+): (Coin<BaseAsset>, FlashLoan)
+
+public fun return_flashloan_base<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    coin: Coin<BaseAsset>,
+    flash_loan: FlashLoan,
+)
+```
+
+借 quote 也有对应的 quote 版本。不要把这里和 Margin 借款混淆：闪电贷没有跨交易债务 shares，也没有还款计划，失败就整笔交易 abort。
+
 ## 源码地图
 
 - `packages/deepbook/sources/pool.move`：`borrow_flashloan_base`、`borrow_flashloan_quote`、`return_flashloan_base`、`return_flashloan_quote`。
@@ -68,4 +98,3 @@
 1. 编写一个 PTB，借 base 后调用一次 swap，再归还 base。
 2. 构造错误 pool 归还的 dry run，记录 abort code。
 3. 写 SQL 统计每个 pool 每日闪电贷借出总量和最大单笔数量。
-

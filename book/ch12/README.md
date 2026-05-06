@@ -13,6 +13,26 @@
 - L3 封装限价单、市价单、swap、撤单、Margin 和 Predict 交易。
 - L4 加入 dry run、错误解析、钱包签名和后端安全构造交易。
 
+## 关键定义卡片
+
+SDK 封装的目标不是隐藏 Move，而是稳定翻译 Move 签名。比如 `BalanceManager` 操作背后是：
+
+```move
+public fun new(ctx: &mut TxContext): BalanceManager
+public fun deposit<T>(balance_manager: &mut BalanceManager, coin: Coin<T>, ctx: &mut TxContext)
+public fun withdraw<T>(
+    balance_manager: &mut BalanceManager,
+    withdraw_amount: u64,
+    ctx: &mut TxContext,
+): Coin<T>
+public fun generate_proof_as_owner(
+    balance_manager: &BalanceManager,
+    ctx: &TxContext,
+): TradeProof
+```
+
+所以 SDK 服务层必须保存三类信息：对象 ID、类型参数、资源输入输出。只暴露 `placeLimitOrder()` 这种名字不够，错误发生时要能打印出 pool id、manager id、coin type、price/quantity 原始整数、dry run error 和对应 Move 入口。
+
 ## 源码地图
 
 - `scripts/config/constants.ts`：主网、测试网的 admin cap、margin cap、supplier cap、market maker 地址等配置来源。
@@ -89,4 +109,3 @@
 2. 为 `MarginService` 增加 `borrowAndPlaceLimitOrder` 组合 PTB。
 3. 为 `PredictService` 增加 quote 缓存和 oracle stale 检查。
 4. 用 fixture 写一个 dry run 错误解析测试表，覆盖 Move abort、对象不存在、余额不足和 gas 不足。
-

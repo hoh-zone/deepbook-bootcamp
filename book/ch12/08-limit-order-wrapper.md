@@ -14,6 +14,36 @@
 - `packages/deepbook/sources/pool.move`：`place_limit_order` 等入口。
 - `scripts/utils/utils.ts`：dry run 与 gas 设置。
 
+## 源码定义
+
+SDK wrapper 最终要构造这个 Move call：
+
+```move
+public fun place_limit_order<BaseAsset, QuoteAsset>(
+    self: &mut Pool<BaseAsset, QuoteAsset>,
+    balance_manager: &mut BalanceManager,
+    trade_proof: &TradeProof,
+    client_order_id: u64,
+    order_type: u8,
+    self_matching_option: u8,
+    price: u64,
+    quantity: u64,
+    is_bid: bool,
+    pay_with_deep: bool,
+    expire_timestamp: u64,
+    clock: &Clock,
+    ctx: &TxContext,
+): OrderInfo
+```
+
+因此 TypeScript wrapper 的职责不是隐藏这些参数，而是把用户输入稳定转换成它们：
+
+- `poolKey` -> `Pool<BaseAsset, QuoteAsset>` 和 type arguments。
+- `balanceManagerKey` -> `BalanceManager` 对象和 `TradeProof` 生成方式。
+- decimal `price/quantity` -> 链上整数，并校验 tick/lot。
+- `orderType/selfMatchingOption` -> DeepBook 常量。
+- `expire_timestamp` -> 毫秒时间戳或默认过期策略。
+
 ## 正文
 
 限价单对应 `packages/deepbook/sources/pool.move` 的 `place_limit_order`。SDK 层不要直接暴露 Move 参数顺序，而是暴露领域参数：

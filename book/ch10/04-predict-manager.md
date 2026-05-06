@@ -14,6 +14,44 @@
 - `packages/predict/sources/registry.move`：创建和分享 manager 的入口与派生 key。
 - `packages/deepbook/sources/balance_manager.move`：Predict 内部复用的余额模型。
 
+## 源码定义
+
+`PredictManager` 把用户余额和预测头寸放在一个共享对象里：
+
+```move
+public struct PredictManagerKey(address, u64) has copy, drop, store;
+
+public struct PredictManager has key {
+    id: UID,
+    owner: address,
+    balance_manager: BalanceManager,
+    deposit_cap: DepositCap,
+    withdraw_cap: WithdrawCap,
+    positions: Table<RangeKey, u64>,
+}
+```
+
+公开给用户的资金入口：
+
+```move
+public fun deposit<T>(self: &mut PredictManager, coin: Coin<T>, ctx: &TxContext)
+
+public fun withdraw<T>(
+    self: &mut PredictManager,
+    amount: u64,
+    ctx: &mut TxContext,
+): Coin<T>
+```
+
+包内头寸更新入口：
+
+```move
+public(package) fun increase_position(self: &mut PredictManager, key: RangeKey, quantity: u64)
+public(package) fun decrease_position(self: &mut PredictManager, key: RangeKey, quantity: u64)
+```
+
+`positions` 只保存区间数量，不保存成本价、手续费或 PnL。应用要展示收益，必须结合 mint/redeem 事件、交易 digest 或未来 Indexer 读模型。
+
 ## 正文
 
 `PredictManager` 是每个用户的共享对象，字段包括 owner、DeepBook `BalanceManager`、`DepositCap`、`WithdrawCap` 和 `Table<RangeKey, u64>` positions。`registry.move::create_and_share_manager` 使用 `PredictManagerKey(address, 0)` 派生对象 ID，v1 默认每个地址一个 manager。

@@ -14,6 +14,33 @@
 - [packages/deepbook/sources/book/book.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/book.move)：`match_against_book`、`inject_limit_order`、`cancel_order` 和买卖两侧 `BigVector<Order>`。
 - [packages/deepbook/sources/book/fill.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/fill.move)：`Fill` 的 maker 方向、成交数量、completed/expired 和结算字段。
 
+## 源码定义
+
+`Fill` 是一次 taker 和一个 maker 的成交切片：
+
+```move
+public struct Fill has copy, drop, store {
+    maker_order_id: u128,
+    maker_client_order_id: u64,
+    execution_price: u64,
+    balance_manager_id: ID,
+    expired: bool,
+    completed: bool,
+    original_maker_quantity: u64,
+    base_quantity: u64,
+    quote_quantity: u64,
+    taker_is_bid: bool,
+    maker_epoch: u64,
+    maker_deep_price: OrderDeepPrice,
+    taker_fee: u64,
+    taker_fee_is_deep: bool,
+    maker_fee: u64,
+    maker_fee_is_deep: bool,
+}
+```
+
+这里的 `balance_manager_id` 是 maker 的 manager，不是 taker。`taker_is_bid` 决定结算方向：taker 买入时 maker 卖出 base、收 quote；taker 卖出时 maker 买入 base、付 quote。`expired` 和 `completed` 不是 UI 状态装饰，它们决定 Book 是否移除 maker order，以及 State 如何释放或结算锁定资产。
+
 ## 正文
 
 `fill.move` 的 `Fill` 是 taker 与一个 maker order 的匹配结果。字段包括 maker order id、maker client order id、execution price、maker BalanceManager、是否 expired、是否 completed、原始 maker quantity、本次 base/quote 数量、taker side、maker epoch、maker deep price、maker/taker fee。

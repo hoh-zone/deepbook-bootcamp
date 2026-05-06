@@ -19,6 +19,34 @@
 
 阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
 
+## 源码定义
+
+先看 `Pool` 的定义：
+
+```move
+public struct Pool<phantom BaseAsset, phantom QuoteAsset> has key {
+    id: UID,
+    inner: Versioned,
+}
+```
+
+`BaseAsset` 和 `QuoteAsset` 是 phantom 类型参数。它们不作为运行时字段保存，但会进入类型系统，决定这个池到底是 `SUI/USDC`、`DEEP/SUI`，还是另一个资产对。也就是说，市场身份不是一个字符串字段，而是 Move 类型的一部分。
+
+池创建入口也把这个设计暴露出来：
+
+```move
+public fun create_permissionless_pool<BaseAsset, QuoteAsset>(
+    registry: &mut Registry,
+    tick_size: u64,
+    lot_size: u64,
+    min_size: u64,
+    creation_fee: Coin<DEEP>,
+    ctx: &mut TxContext,
+): ID
+```
+
+这段签名告诉开发者两件事：第一，创建池必须给出 base/quote 类型参数；第二，tick、lot、min size 是链上规则，不是前端展示规则。SDK 如果只让用户输入 `"SUI/USDC"`，最后仍然必须把它翻译成 `BaseAsset`、`QuoteAsset` 两个完整 Move type。
+
 ## 正文
 
 `Pool<phantom BaseAsset, phantom QuoteAsset>` 把交易对编码到类型系统里。`BaseAsset` 表示成交数量的单位，`QuoteAsset` 表示计价资产。`place_limit_order` 和 `place_market_order` 的 `quantity` 都是 base 数量；买单用 quote 支付，卖单用 base 支付。

@@ -14,6 +14,51 @@
 - `packages/predict/sources/predict_manager.move`：manager owner 校验、余额 withdraw、头寸增减。
 - `packages/predict/sources/accounting/fee_reserve.move`、`vault/vault.move`、`vault/plp.move`：费用、vault 资产和 PLP 铸烧。
 
+## 源码定义
+
+Predict 的主对象定义：
+
+```move
+public struct Predict has key {
+    id: UID,
+    vault: Vault,
+    fee_reserve: FeeReserve,
+    treasury_cap: TreasuryCap<PLP>,
+    pricing_config: PricingConfig,
+    risk_config: RiskConfig,
+    treasury_config: TreasuryConfig,
+    oracle_config: OracleConfig,
+    withdrawal_limiter: RateLimiter,
+    trading_paused: bool,
+}
+```
+
+两个最重要的交易入口：
+
+```move
+public fun mint<Quote>(
+    predict: &mut Predict,
+    manager: &mut PredictManager,
+    oracle: &OracleSVI,
+    key: RangeKey,
+    quantity: u64,
+    clock: &Clock,
+    ctx: &mut TxContext,
+)
+
+public fun redeem<Quote>(
+    predict: &mut Predict,
+    manager: &mut PredictManager,
+    oracle: &OracleSVI,
+    key: RangeKey,
+    quantity: u64,
+    clock: &Clock,
+    ctx: &mut TxContext,
+)
+```
+
+这两个签名解释了 Predict 应用为什么比 Spot 应用更依赖上下文：交易不仅需要 manager 和共享对象，还需要 oracle、range key、clock 和 quote 类型。错误也不只来自余额不足，还可能来自交易暂停、oracle stale、区间非法、ask price 越界或 vault 风险限制。
+
 ## 正文
 
 `predict.move` 的核心共享对象是 `Predict`，字段包括 `vault`、`fee_reserve`、`treasury_cap<PLP>`、`pricing_config`、`risk_config`、`treasury_config`、`oracle_config`、`withdrawal_limiter` 和 `trading_paused`。

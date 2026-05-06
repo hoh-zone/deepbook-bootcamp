@@ -19,6 +19,32 @@
 
 阅读时先从这些文件定位结构体、入口函数和事件，再回到正文中的资金路径或应用流程。
 
+## 源码定义
+
+`MarginPool` 的核心字段如下：
+
+```move
+public struct MarginPool<phantom Asset> has key, store {
+    id: UID,
+    vault: Balance<Asset>,
+    state: State,
+    config: ProtocolConfig,
+    protocol_fees: ProtocolFees,
+    positions: PositionManager,
+    allowed_deepbook_pools: VecSet<ID>,
+    rate_limiter: RateLimiter,
+    extra_fields: VecMap<String, u64>,
+}
+```
+
+字段要按三组读：
+
+- 资金和份额：`vault`、`state`、`positions`。
+- 风险和限制：`config`、`allowed_deepbook_pools`、`rate_limiter`。
+- 收费和扩展：`protocol_fees`、`extra_fields`。
+
+供应入口是公开函数，借款入口是包内函数。这一点很重要：普通用户可以 supply，但借款必须通过 `MarginManager` 和协议内部风控路径进入，不能绕过 manager 直接从池子借资产。
+
 ## 正文
 
 `MarginPool<Asset>` 是一个单资产借贷池。核心字段包括：

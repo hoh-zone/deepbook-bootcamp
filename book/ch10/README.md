@@ -13,6 +13,53 @@
 - L4 能解释 mint、redeem、settle、withdraw 的状态变化。
 - L5 能判断 Predict 当前网络/版本边界和可产品化范围。
 
+## 关键定义卡片
+
+Predict 的核心对象不是订单簿，而是预测市场共享状态：
+
+```move
+public struct Predict has key {
+    id: UID,
+    vault: Vault,
+    fee_reserve: FeeReserve,
+    treasury_cap: TreasuryCap<PLP>,
+    pricing_config: PricingConfig,
+    risk_config: RiskConfig,
+    treasury_config: TreasuryConfig,
+    oracle_config: OracleConfig,
+    withdrawal_limiter: RateLimiter,
+    trading_paused: bool,
+}
+```
+
+这段定义说明 Predict 的主线是 vault 风险、oracle、pricing 和 LP 份额，不是 price level 撮合。`trading_paused` 是全局交易开关，`withdrawal_limiter` 约束 LP 退出，`fee_reserve` 把 LP、协议和保险费用从 vault 价值中拆出来。
+
+核心交易入口：
+
+```move
+public fun mint<Quote>(
+    predict: &mut Predict,
+    manager: &mut PredictManager,
+    oracle: &OracleSVI,
+    key: RangeKey,
+    quantity: u64,
+    clock: &Clock,
+    ctx: &mut TxContext,
+)
+
+public fun redeem<Quote>(
+    predict: &mut Predict,
+    manager: &mut PredictManager,
+    oracle: &OracleSVI,
+    key: RangeKey,
+    quantity: u64,
+    clock: &Clock,
+    ctx: &mut TxContext,
+)
+```
+
+`mint` 和 `redeem` 都需要 `PredictManager`、oracle、range key、clock 和 quote 类型。应用开发时如果只展示“买入/卖出”按钮，而不展示 oracle 状态、区间、到期和费用，就解释不了交易为什么失败。
+
 ## 源码地图
 
 - [packages/predict/sources/predict.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/sources/predict.move)：Predict 共享对象、交易入口、LP 入口、配置读写和事件。
@@ -84,4 +131,3 @@
 1. 设计一个 SUI 价格 UP/DOWN 市场，写出 oracle asset、feed id、expiry、strike grid、两个 `RangeKey`。
 2. 给定 vault balance、total MTM、max payout 和 fee 参数，计算 LP 当前 NAV 与用户 mint 的 all-in cost。
 3. 为 Predict 设计最小事件索引表，至少覆盖 market、oracle update、position、LP share 和 fee accrual。
-

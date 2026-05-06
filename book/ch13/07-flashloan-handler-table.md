@@ -15,6 +15,42 @@
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)：DeepBook Spot、BalanceManager、订单簿或闪电贷逻辑。
 - [crates/indexer/tests/snapshots/snapshot_tests__flash_loans__flashloans.snap](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer/tests/snapshots/snapshot_tests__flash_loans__flashloans.snap)：测试 fixture、断言或可复现验证材料。
 
+## 源码定义
+
+链上事件定义：
+
+```move
+public struct FlashLoanBorrowed has copy, drop {
+    pool_id: ID,
+    borrow_quantity: u64,
+    type_name: TypeName,
+}
+```
+
+Indexer 映射：
+
+```rust
+define_handler! {
+    name: FlashLoanHandler,
+    processor_name: "flash_loan",
+    event_type: FlashLoanBorrowed,
+    db_model: Flashloan,
+    table: flashloans,
+    map_event: |event, meta| Flashloan {
+        event_digest: meta.event_digest(),
+        digest: meta.digest(),
+        checkpoint: meta.checkpoint(),
+        checkpoint_timestamp_ms: meta.checkpoint_timestamp_ms(),
+        pool_id: event.pool_id.to_string(),
+        borrow_quantity: event.borrow_quantity as i64,
+        borrow: true,
+        type_name: event.type_name.to_string(),
+    }
+}
+```
+
+注意这里没有 `FlashLoanReturned` 事件。成功归还由同一交易不 abort 保证，表里只记录 borrow 事件。`borrow: true` 不是债务方向标记，而是当前 handler 固定写入的借出事件字段。
+
 ## 正文
 
 DeepBookV3 闪电贷事件来自 `packages/deepbook/sources/vault/vault.move` 的 `FlashLoanBorrowed`。Indexer 中的 `FlashLoanHandler` 把它写入 `flashloans` 表：
