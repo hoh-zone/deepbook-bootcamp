@@ -4,7 +4,7 @@
 
 - 书稿仓库：`deepbook-bootcamp`
 - DeepBook 源码仓库：[MystenLabs/deepbookv3](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0)
-- 章节编号：`ch00` 到 `ch15`
+- 章节编号：`ch00` 到 `ch16`
 - 阅读顺序：以 `book/SUMMARY.md` 的六阶路线为准；文件编号只表示书稿组织，不强制代表学习顺序。
 - 小节编号：每章内部使用 `01` 到 `99`，例如 `ch04-07`
 - 每章代码目录：`book/chXX/code/`
@@ -511,6 +511,32 @@
 - [ ] `s04-e2e-test-template/`：端到端测试模板。
 - [ ] `s05-deployment-compose/`：生产部署 compose 模板。
 - [ ] `s06-audit-checklist/`：审计检查脚本和清单。
+
+## ch16 DeepBook Sandbox 本地开发环境
+
+代码目录：`book/ch16/code/`
+
+源码范围：[MystenLabs/deepbook-sandbox](https://github.com/MystenLabs/deepbook-sandbox)、`sandbox/docker-compose.yml`、`sandbox/scripts/deploy-all.ts`、`sandbox/packages/example_contract`、`sandbox/package.json`、`sandbox/.env.example`
+
+- [x] 01 解释 DeepBook Sandbox 的定位：本地 localnet、协议、服务、dashboard、market maker 和自定义合约实验室。
+- [x] 02 讲解从 `git clone --recurse-submodules` 到 `pnpm deploy-all` 的一条命令启动路径。
+- [x] 03 梳理 dashboard、Sui RPC、faucet、DeepBook Server、oracle、market maker、indexer、PostgreSQL 的服务拓扑和端口。
+- [x] 04 讲解 dashboard 的 Health、Market Maker、Trading、Faucet、Deployment 页面如何服务 DeepBook 学习。
+- [x] 05 讲解 `.env`、`deployments/localnet.json`、`Pub.localnet.toml` 和 `.external-packages/` 的部署产物含义。
+- [x] 06 讲解如何复制 `example_contract`，配置 `Move.toml`，并用 `--pubfile-path` 发布依赖 DeepBook 的自定义 Move 合约。
+- [x] 07 讲解 SDK、Indexer、Server 在 sandbox 中如何构成交易调试闭环。
+- [x] 08 讲解 oracle、market maker、faucet 对本地可交易环境的作用。
+- [x] 09 讲解测试、重置、日志、manifest 保存和数据管理。
+- [x] 10 说明如何用 sandbox 承接本书 Move、SDK、Indexer、Margin、应用和测试练习。
+- [x] 11 说明 sandbox 与测试网、生产环境的边界和迁移判断。
+- [x] 12 本章代码目录说明。
+
+代码 TODO：
+
+- [x] `s01-sandbox-runbook/`：从 clone 到部署、检查、清理的本地运行手册。
+- [x] `s02-dashboard-checks/`：Dashboard 页面验收清单。
+- [x] `s03-custom-contract-template/`：自定义 Move 合约模板使用说明。
+- [x] `s04-service-health-checks/`：服务端口、健康检查和日志排障命令。
 
 ## 附录 TODO
 

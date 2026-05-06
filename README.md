@@ -23,3 +23,5 @@ mdbook build
 - `book/chXX/README.md`：每章导读。
 - `book/chXX/NN-title.md`：每节独立正文。
 - `book/chXX/code/`：每章配套示例说明。
+
+新增的 `book/ch16/` 覆盖 [MystenLabs/deepbook-sandbox](https://github.com/MystenLabs/deepbook-sandbox)，用于本地 DeepBook 全栈开发、dashboard 验收、自定义 Move 合约和服务健康检查。

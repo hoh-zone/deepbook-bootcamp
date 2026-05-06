@@ -12,6 +12,6 @@
 - `chXX/NN-title.md`：每个编号小节的独立正文。
 - `chXX/code/`：每章配套代码。
 
-本书以 Sui 官方文档作为产品和集成事实基线，以 [MystenLabs/deepbookv3](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0) 的 GitHub 源码作为源码讲解基础，围绕 DeepBookV3、DeepBook Margin、DeepBook Predict、SDK 集成、Indexer 和生产应用开发展开。
+本书以 Sui 官方文档作为产品和集成事实基线，以 [MystenLabs/deepbookv3](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0) 的 GitHub 源码作为源码讲解基础，并把 [MystenLabs/deepbook-sandbox](https://github.com/MystenLabs/deepbook-sandbox) 作为本地全栈实验环境，围绕 DeepBookV3、DeepBook Margin、DeepBook Predict、SDK 集成、Indexer、Sandbox 和生产应用开发展开。
 
 写作目标不是复述文档，也不是堆源码链接，而是做成一本高级 Move 案例书 + DeepBook 专题书：先建立产品直觉和官方边界，再进入源码状态机，最后落到 SDK、PTB、Indexer、Server、风控和生产交付。
