@@ -25,3 +25,10 @@
 
 - [packages/predict/simulations/src/runtime.ts](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/simulations/src/runtime.ts) 的 `mintTx`。
 - [packages/predict/simulations/src/runtime.ts](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/simulations/src/runtime.ts) 的 `refreshOracleAndMintTx`。
+
+本地仿真命令：
+
+```bash
+cd deepbookv3
+bash packages/predict/simulations/run.sh --setup
+```

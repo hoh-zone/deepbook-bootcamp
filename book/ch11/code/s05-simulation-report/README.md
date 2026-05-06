@@ -22,3 +22,12 @@
 
 仿真报告只能用于压力测试和参数理解，不能写成收益承诺。
 
+建议运行方式：
+
+```bash
+pnpm init
+pnpm add -D typescript tsx @types/node
+pnpm exec tsx src/report.ts results.json
+```
+
+报告输出建议同时生成 Markdown 表格和 JSON，便于放入书稿和自动测试。

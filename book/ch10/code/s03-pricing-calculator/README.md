@@ -31,3 +31,11 @@ function utilizationFee(baseFee: bigint, multiplier: bigint, liability: bigint, 
 ```
 
 扩展练习：补上整数 sqrt，并用 `pricing_config_tests.move` 里的 half price、min fee、full utilization 案例做断言。
+
+建议运行方式：
+
+```bash
+pnpm init
+pnpm add -D typescript tsx vitest @types/node
+pnpm exec vitest run
+```

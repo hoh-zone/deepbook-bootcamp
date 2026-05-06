@@ -6,15 +6,15 @@
 
 先不要把“阅读 Move.toml”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码入口
+## Move 对照
 
-这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
+先用下面几处源码建立 Move 概念的落点。这里不追完整协议流程，只确认类型、ability、对象、事件和测试入口如何在真实项目中出现。
 
 - [packages/deepbook/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/Move.toml)
 - [packages/deepbook_margin/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook_margin/Move.toml)
 - [packages/predict/Move.toml](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict/Move.toml)
 
-读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
+读这些文件时，把语法点和真实对象放在一起看：ability、泛型、对象 ID、事件和测试入口分别承担什么约束。
 
 ## 拆开来看
 
@@ -49,7 +49,7 @@ deepbook = "0x0"
 - 升级或切换分支后重新检查 dependency rev/path。
 - 引用模块时用 Move.toml 中的地址映射解释来源。
 
-## 动手检查
+## 练习问题
 
 - `Move.toml` 中哪些字段会影响源码阅读？
 - 为什么包依赖比产品名称更能说明边界？

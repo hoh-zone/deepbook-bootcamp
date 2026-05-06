@@ -14,3 +14,11 @@
 
 结算页要显示 oracle ID、settlement price、expiry、position side、payout 和交易 digest。不要在 settlement price 未确认前展示确定收益。
 
+本地仿真命令：
+
+```bash
+cd deepbookv3
+bash packages/predict/simulations/run.sh --setup
+```
+
+验收时同时检查 trader payout 和 LP vault 净值变化。

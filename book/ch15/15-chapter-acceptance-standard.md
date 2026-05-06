@@ -8,10 +8,10 @@
 
 ## 源码入口
 
-- `book/ch13/README.md`：本书配套示例、运行模板或验收材料。
-- `book/ch14/README.md`：本书配套示例、运行模板或验收材料。
-- `book/ch15/README.md`：本书配套示例、运行模板或验收材料。
-- `book/ch15/code/s01-move-test-template/README.md`：本书配套示例、运行模板或验收材料。
+- `book/ch13/README.md`：本章验收和交付证据来源。
+- `book/ch14/README.md`：本章验收和交付证据来源。
+- `book/ch15/README.md`：本章验收和交付证据来源。
+- `book/ch15/code/s01-move-test-template/README.md`：本章验收和交付证据来源。
 
 ## 从章节到验收证据
 

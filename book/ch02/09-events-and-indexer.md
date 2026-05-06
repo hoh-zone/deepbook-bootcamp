@@ -6,16 +6,16 @@
 
 这一节用“event::emit 与 Indexer”训练 Move 手感：先看对象和资源能不能被复制、丢弃、转移，再回到 DeepBook 里判断为什么这些限制有实际价值。
 
-## 源码入口
+## Move 对照
 
-这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
+先用下面几处源码建立 Move 概念的落点。这里不追完整协议流程，只确认类型、ability、对象、事件和测试入口如何在真实项目中出现。
 
 - [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
 - [crates/indexer](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer)
 
-读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
+读这些文件时，把语法点和真实对象放在一起看：ability、泛型、对象 ID、事件和测试入口分别承担什么约束。
 
 ## 拆开来看
 
@@ -37,7 +37,7 @@ DeepBook 真实事件更多：`balance_manager.move` 发出 `BalanceManagerEvent
 - Indexer 延迟不等于链上交易失败，前端应区分 pending indexing 和 failed execution。
 - 事件字段应包含足够的对象 ID、账户 ID 和数量信息，方便回放。
 
-## 动手检查
+## 练习问题
 
 - 为什么当前对象字段不能替代订单历史？
 - `event::emit` 到 Indexer 表之间有哪些转换步骤？

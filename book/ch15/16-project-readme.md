@@ -6,29 +6,49 @@
 
 这一节先看验收证据：测试、日志、监控、部署步骤、审计材料或发布前核对项必须能复现。
 
-## 源码入口
+## 交付入口
 
-- `book/ch13/code/s01-local-postgres/README.md`：本书配套示例、运行模板或验收材料。
-- `book/ch14/code/s01-trading-terminal/README.md`：本书配套示例、运行模板或验收材料。
-- `book/ch15/code/s05-deployment-compose/README.md`：本书配套示例、运行模板或验收材料。
-- [docker](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/docker)：容器构建、入口脚本或部署边界。
+- [book/ch13/code/s01-local-postgres/README.md](../ch13/code/s01-local-postgres/README.md)：Indexer 数据库准备。
+- [book/ch14/code/s01-trading-terminal/README.md](../ch14/code/s01-trading-terminal/README.md)：应用 MVP 验收样例。
+- [book/ch15/code/s05-deployment-compose/README.md](code/s05-deployment-compose/README.md)：生产拓扑模板。
+- [docker](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/docker)：DeepBook indexer/server 容器边界。
 
-## 从测试到上线
+## README 应该解决什么
 
-最终 README 应说明阅读路径、环境要求、代码运行顺序、源码仓库版本、测试命令和常见排障。
+全书项目 README 不是封面文案，而是读者的第一份运行手册。它至少要回答五个问题：
 
+| 问题 | README 中的交付方式 |
+| --- | --- |
+| 这本书按什么顺序读 | 给出六阶路线，并说明哪些章节可以跳读。 |
+| 源码以哪个版本为准 | 写明 DeepBook GitHub 快照、官方文档日期、sandbox 仓库入口。 |
+| 本地如何跑 | 列出 `mdbook build`、sandbox、SDK、Indexer、Move 示例的入口命令。 |
+| 示例状态如何判断 | 用“已实现、可运行、蓝图、待补齐”标注每个代码目录。 |
+| 出错如何定位 | 给出 digest、checkpoint、日志、RPC、Server、PostgreSQL 的排查顺序。 |
 
-全书项目 README 要把环境准备、章节顺序、运行命令、依赖版本和故障排查集中起来。读者不应靠猜测找到 PostgreSQL、Indexer、Server、前端和测试模板的启动顺序。
+一个合格的 README 应避免“请进入对应章节查看”这种空转句。读者第一次打开仓库时，应该能在 5 分钟内知道自己要安装什么、先运行什么、失败后看哪里。
 
-## 交付判断
+## 推荐结构
 
-- 每个测试或部署结论都要能回到具体命令、fixture、日志、指标或审计材料。
-- 同时覆盖成功路径、失败路径、边界值、权限错误和数据延迟。
-- 升级、迁移和部署步骤要写明回滚点、兼容窗口、健康检查和负责人。
-- 涉及资金安全时，把链上约束、SDK 构造、Indexer 读模型和前端提示分层验证。
+```text
+1. 书籍定位和阅读路线
+2. 事实基线：官方文档、deepbookv3 源码、deepbook-sandbox
+3. 环境要求：Sui CLI、Node/pnpm、Rust、Docker、PostgreSQL
+4. 快速预览：mdBook 构建和本地预览
+5. 本地全栈：DeepBook Sandbox
+6. 章节代码运行顺序
+7. 常见问题：RPC、gas、package ID、Indexer lag、Predict 版本
+8. 出版和审计状态
+```
 
-## 动手检查
+## 验收标准
 
-- 本节的验收证据是 Move 测试、SDK 测试、snapshot、E2E、指标还是部署日志？
-- 哪些失败路径、权限边界、迁移风险或运维故障还没有被覆盖？
-- 如果生产事故发生，能否用 digest、checkpoint、日志和监控在 10 分钟内定位责任层？
+- README 中每条命令都能在对应目录执行，不能只写概念。
+- 每个环境变量说明来源、示例值和是否允许提交到仓库。
+- 每个外部链接注明用途：官方事实、源码快照、sandbox 工具或参考文档。
+- 对未完成代码目录显式标注“蓝图”，不能伪装成可运行示例。
+
+## 交付检查
+
+- 新读者能否只凭 README 构建书稿并进入 ch16 sandbox？
+- SDK、Indexer、Move 示例是否有清晰的依赖和运行边界？
+- README 是否把当前仍未完成的代码 TODO 讲清楚，而不是隐藏起来？

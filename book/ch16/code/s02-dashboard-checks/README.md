@@ -29,3 +29,12 @@ notes:
 ## 判断
 
 页面成功只是第一层证据。重要交易要同时记录 digest、事件、Server response 和 dashboard 状态。
+
+## 命令验收
+
+```bash
+curl http://localhost:9009/manifest
+curl http://localhost:3001/health
+curl http://localhost:9010/
+curl http://localhost:9008/status
+```

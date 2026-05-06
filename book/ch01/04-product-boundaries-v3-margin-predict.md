@@ -6,7 +6,7 @@
 
 先把“产品边界：V3、Margin、Predict”放到读者路径里看：你不是在背一个协议名，而是在建立一套判断 DeepBook 能做什么、不能做什么的坐标。读这一节时，重点看产品边界如何落到对象、交易和数据系统上。
 
-## 源码入口
+## 本节坐标
 
 本节先用官方文档定边界，再对照源码包。官方文档给出产品定位和当前集成状态，源码包解释这些定位如何落到对象和函数。
 
@@ -18,7 +18,7 @@
 - [packages/predict](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/predict)
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 
-读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
+这一组入口用来校准产品边界：先看它们暴露哪些对象和动作，再判断本节概念最终会落到哪条交易或数据路径。
 
 ## 建立直觉
 

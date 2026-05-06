@@ -6,16 +6,16 @@
 
 先不要把“动态字段”当成孤立语法点。DeepBook 里每个资产、订单和权限对象都会受 Move 类型系统约束，读这一节时要看语法如何变成资金安全边界。
 
-## 源码入口
+## Move 对照
 
-这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
+先用下面几处源码建立 Move 概念的落点。这里不追完整协议流程，只确认类型、ability、对象、事件和测试入口如何在真实项目中出现。
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/registry.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/registry.move)
 - [packages/deepbook/sources/helper/big_vector.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/helper/big_vector.move)
 - [packages/deepbook/sources/state/account.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/account.move)
 
-读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
+读这些文件时，把语法点和真实对象放在一起看：ability、泛型、对象 ID、事件和测试入口分别承担什么约束。
 
 ## 拆开来看
 
@@ -37,7 +37,7 @@
 - 写查询工具时不要只拿对象字段，还要考虑动态字段分页。
 - 删除授权或余额字段时检查是否同步清理相关索引或事件。
 
-## 动手检查
+## 练习问题
 
 - 动态字段解决 DeepBook 哪类扩展问题？
 - 查询动态字段需要知道哪两个核心信息？

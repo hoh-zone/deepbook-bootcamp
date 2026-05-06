@@ -23,3 +23,12 @@
 
 Predict vault 不是订单簿撮合池，也不是 MarginPool。它必须同时考虑 LP 资金、用户 position 的潜在 payout、已收 fee 和结算后的 redeem。示例实现时要把这些账本分开，不要只维护一个 `balance`。
 
+建议运行方式：
+
+```bash
+pnpm init
+pnpm add -D typescript tsx vitest @types/node
+pnpm exec vitest run
+```
+
+测试至少覆盖：首次 LP supply、用户 mint、fee reserve 增加、settlement payout、LP withdraw 五个状态变化。

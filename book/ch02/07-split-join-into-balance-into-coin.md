@@ -6,15 +6,15 @@
 
 这一节用“split、join、into_balance、into_coin”训练 Move 手感：先看对象和资源能不能被复制、丢弃、转移，再回到 DeepBook 里判断为什么这些限制有实际价值。
 
-## 源码入口
+## Move 对照
 
-这一节只保留必要入口，目的不是让你马上读完源码，而是建立后续定位能力：
+先用下面几处源码建立 Move 概念的落点。这里不追完整协议流程，只确认类型、ability、对象、事件和测试入口如何在真实项目中出现。
 
 - [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
 - [packages/deepbook/sources/vault/vault.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/vault/vault.move)
 - [packages/deepbook/sources/state/balances.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/state/balances.move)
 
-读源码时先确认对象、函数签名和事件名称；等正文讲到交易路径时，再回到这些入口核对。
+读这些文件时，把语法点和真实对象放在一起看：ability、泛型、对象 ID、事件和测试入口分别承担什么约束。
 
 ## 拆开来看
 
@@ -40,7 +40,7 @@
 - 每次 join 都要确认资产类型一致且不会绕过费用或锁定逻辑。
 - 从 `Balance<T>` 回到 `Coin<T>` 时确认函数是否需要 `TxContext`。
 
-## 动手检查
+## 练习问题
 
 - `into_coin(ctx)` 为什么需要 `TxContext`？
 - Vault 结算中 split 和 join 分别对应哪些资产方向？
