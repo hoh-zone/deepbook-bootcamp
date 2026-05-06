@@ -1,0 +1,25 @@
+[book]
+authors = ["HOH"]
+language = "zh-CN"
+src = "book"
+title = "DeepBook 开发权威指南"
+description = "从 Sui Move 到 DeepBookV3、Margin、Predict、SDK、Indexer 和生产应用构建的系统教程。"
+
+[build]
+build-dir = "target/mdbook"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/MystenLabs/deepbookv3"
+edit-url-template = ""
+no-section-label = false
+site-url = "/"
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.print]
+enable = true

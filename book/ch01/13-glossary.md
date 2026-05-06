@@ -1,0 +1,54 @@
+# ch01-13 术语表
+
+[返回本章](README.md)
+
+## 本节目标
+
+- 把常用交易、对象和链下服务术语绑定到源码语义。
+- 能沿“术语表”定位相关 Move 源码、脚本或链下服务入口。
+- 读完后能够用交易路径、对象职责或失败场景解释本节主题。
+
+## 源码关联
+
+本节重点对照以下源码或后续阅读入口：
+
+- [packages/deepbook/sources/pool.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/pool.move)
+- [packages/deepbook/sources/balance_manager.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/balance_manager.move)
+- [packages/deepbook/sources/book/order_info.move](https://github.com/MystenLabs/deepbookv3/blob/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/packages/deepbook/sources/book/order_info.move)
+- [crates/indexer](https://github.com/MystenLabs/deepbookv3/tree/663edbf9c30d6c93100e6cd66936e1487a5dc9e0/crates/indexer)
+
+阅读时先从标题对应的入口文件开始，确认对象、函数签名和事件名称，再回到本节正文理解它在交易路径中的位置。
+
+## 正文
+
+pool：某个 `BaseAsset/QuoteAsset` 交易对的链上池子，对应 `Pool<BaseAsset, QuoteAsset>`。
+
+base：交易对基础资产。`SUI/USDC` 中 SUI 是 base。
+
+quote：计价资产。`SUI/USDC` 中 USDC 是 quote。
+
+lot：数量离散单位。订单数量必须满足最小数量和 lot size 约束。
+
+tick：价格离散单位。限价单价格必须满足 tick size 约束。
+
+order id：订单唯一编号，后续在 `book/order.move` 和 `book/order_info.move` 分析。
+
+checkpoint：Sui 链上全局进度点，Indexer 用它确定事件和交易处理进度。
+
+## 阅读补充
+
+术语表不是翻译表，而是防止同一个词在不同层被误用。例如 account 在钱包层、`BalanceManager` 层、`state/account.move` 层含义不同；order 在前端展示、`book/order.move` 压缩状态和 `order_info.move` 生命周期对象里也不是同一个结构。
+
+维护术语时建议写“术语 -> 源码位置 -> 在交易路径中的职责”。只写中文解释会在后续章节失去约束力，尤其是 fee、rebate、stake、settled、owed 这类容易被产品文案简化的词。
+
+## 开发要点
+
+- 每个核心术语都尽量附一个源码文件或后续章节入口。
+- 发现同名概念跨层含义不同，要在术语表里拆分。
+- 不要用业务口号替代对象、函数或事件的准确名称。
+
+## 检查问题
+
+- `account` 在 DeepBook 文档里可能指哪几层？
+- 为什么 `Order` 和 `OrderInfo` 不能混用？
+- 术语表如何帮助调试交易失败？
